@@ -4,6 +4,15 @@ require('mongodb');
 const createJWT = require('./createJWTs');
 const User = require('./models/user');
 
+
+
+async function findAccount(email, password = null){
+    if(password){
+        return await User.findOne({Email:email, Password:password});
+    }
+    return await User.findOne({Email:email});
+};
+
 exports.setApp = function(app, mongoose){
     
 
@@ -12,8 +21,7 @@ exports.setApp = function(app, mongoose){
         try{
             const { email, password } = req.body;
 
-            const user = await User.findOne({Email:email, Password:password});
-            
+            const user = await findAccount(email, password);
 
             if(!user){
                 return res.status(401).json({error: 'Invalid email or password'});
@@ -30,6 +38,33 @@ exports.setApp = function(app, mongoose){
             }
 
             res.status(200).json(token);
+        }catch(e){
+            res.status(500).json({error: e.message});
+        }
+    });
+
+    app.post('/api/register', async (req, res) => {
+        try{
+            const { firstName, lastName, email, username, password } = req.body;
+
+            const existingUser = await findAccount(email);  
+            if(existingUser){
+                return res.status(400).json({error: 'Email already in use'});
+            }
+
+            const newUser = new User({
+                id: Date.now(),
+                FirstName: firstName,
+                LastName: lastName,
+                Email: email,
+                Username: username,
+                Password: password
+            });
+
+            await newUser.save();
+
+            res.status(201).json({message: 'User registered successfully'});
+
         }catch(e){
             res.status(500).json({error: e.message});
         }
