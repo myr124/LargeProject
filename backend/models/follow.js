@@ -2,12 +2,12 @@ const mongoose = require('mongoose');
 
 const followSchema = new mongoose.Schema({
 
-    FollowerId:{
-        type: Number,
+    follower_id:{
+        type: mongoose.Schema.Types.ObjectId,
         required: true
     },
-    FolloweeId:{
-        type: Number,
+    following_id:{
+        type: mongoose.Schema.Types.ObjectId,
         required: true
     }
 });

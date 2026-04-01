@@ -3,36 +3,41 @@ const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
 
-    id:{
-        type: Number
-    },
-    FirstName:{
+    firstName:{
         type: String,
         required: true
     },
-    LastName:{
+    lastName:{
         type: String,
         required: true
     },
-    Email:{
+    email:{
         type: String,
         required: true
     },
-    Username:{
+    username:{
         type: String,
         required: true
     },
-    Password:{
+    password:{
         type: String,
         required: true
     },
-    ProfilePictureUrl:{
+    profilePictureUrl:{
         type: String,
         required: false
     },
     isVerified:{
         type: Boolean,
         default: false
+    },
+    followerCount:{
+        type: Number,
+        default: 0
+    },
+    followingCount:{
+        type: Number,
+        default: 0
     }
 });
 

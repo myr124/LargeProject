@@ -21,7 +21,7 @@ const creationSchema = new mongoose.Schema({
     },
     tags:{
         type: [String],
-        required: true
+        required: false
     },
     self_rating:{
         type: Number,
@@ -37,7 +37,7 @@ const creationSchema = new mongoose.Schema({
     },
     author_snippet:{
         type: Object,
-        required: true
+        required: false
     }
 
 
