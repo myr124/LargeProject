@@ -25,6 +25,14 @@ const userSchema = new mongoose.Schema({
     Password:{
         type: String,
         required: true
+    },
+    ProfilePictureUrl:{
+        type: String,
+        required: false
+    },
+    isVerified:{
+        type: Boolean,
+        default: false
     }
 });
 

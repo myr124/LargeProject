@@ -43,3 +43,5 @@ const creationSchema = new mongoose.Schema({
 
 
 });
+
+module.exports = mongoose.model('Creation', creationSchema, 'creations');

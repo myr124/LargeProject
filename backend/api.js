@@ -3,6 +3,10 @@ require('mongodb');
 
 const createJWT = require('./createJWTs');
 const User = require('./models/user');
+const crypto = require('crypto');
+const Token = require('./models/token');
+const { sendVerificationEmail } = require('./mailing/mailer.js');
+
 
 
 
@@ -32,6 +36,10 @@ exports.setApp = function(app, mongoose){
             const fn = user.FirstName;
             const ln = user.LastName;
 
+
+            if(!user.isVerified){
+                return res.status(401).json({error: 'Email not verified'});
+            }
             const token = createJWT.createToken(fn, ln, userId);
             if(token.error){
                 return res.status(500).json({error: 'Error creating token'});
@@ -42,6 +50,9 @@ exports.setApp = function(app, mongoose){
             res.status(500).json({error: e.message});
         }
     });
+
+
+
 
     app.post('/api/register', async (req, res) => {
         try{
@@ -58,17 +69,49 @@ exports.setApp = function(app, mongoose){
                 LastName: lastName,
                 Email: email,
                 Username: username,
-                Password: password
+                Password: password,
+                isVerified: false
             });
 
-            await newUser.save();
+            const verificationToken = crypto.randomBytes(32).toString('hex');
+            const savedUser = await newUser.save();
 
-            res.status(201).json({message: 'User registered successfully'});
+            await new Token({
+                userId: savedUser._id,
+                token: verificationToken
+            }).save();
+
+            const url = `http://localhost:5001/api/verify/${verificationToken}`;
+            
+            await sendVerificationEmail(email, firstName, url);
+
+            res.status(201).json({message: 'Check email to verify account!'});
 
         }catch(e){
             res.status(500).json({error: e.message});
         }
     });
+
+    app.get('/api/verify/:token', async (req, res) => {
+
+        try{
+            const tokenDoc = await Token.findOne({token: req.params.token});
+
+            if(!tokenDoc) return res.status(400).json({error: 'Invalid token'});
+
+            await User.findByIdAndUpdate(tokenDoc.userId, {isVerified: true});
+            await Token.deleteOne({_id: tokenDoc._id});
+
+            res.status(200).json({message: 'Email verified successfully'});
+
+        }catch(e){
+            res.status(500).json({error: e.message});
+        }
+
+    });
+
+
+
 
     app.post('/api/deleteUser', async (req, res) => {
         try{

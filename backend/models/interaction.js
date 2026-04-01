@@ -19,3 +19,5 @@ const interactionSchema = new mongoose.Schema({
         default: Date.now
     }
 });
+
+module.exports = mongoose.model('Interaction', interactionSchema, 'interactions');

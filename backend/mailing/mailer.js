@@ -1,6 +1,6 @@
 
-import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
+const nodemailer = require('nodemailer');
+const dotenv = require('dotenv');
 
 dotenv.config();
 
@@ -14,26 +14,20 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-try {
-  await transporter.verify();
-  console.log("Server is ready to take our messages");
-} catch (err) {
-  console.error("Verification failed:", err);
+
+
+const sendVerificationEmail = async (email, firstName, url) =>{
+    return transporter.sendMail({
+        from: '"Breadboxd" <welcome@breadboxd.xyz>',
+        to: email,
+        subject: "Verify your email for Breadboxd",
+        html: `<p>Hi ${firstName},</p>
+               <p>Thank you for registering with Breadboxd! Please click the link below to verify your email address:</p>
+               <a href="${url}">Verify Email</a>
+               <p>If you did not create an account, please ignore this email.</p>
+               <p>Best regards,<br/>The Breadboxd Team</p>`
+    })
 }
 
-try {
-  const info = await transporter.sendMail({
-    from: '"Breadboxd" <hello@breadboxd.xyz>', // sender address
-    to: "rjlop2005@gmail.com", // list of recipients
-    subject: "Hello", // subject line
-    text: "Hello world?", // plain text body
-    html: "<b>Hello world?</b>", // HTML body
-  });
-
-  console.log("Message sent: %s", info.messageId);
-  // Preview URL is only available when using an Ethereal test account
-  console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-} catch (err) {
-  console.error("Error while sending mail:", err);
-}
+module.exports = {transporter, sendVerificationEmail};
 
