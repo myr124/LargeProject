@@ -1,19 +1,22 @@
-// Login.jsx
-// BreadBoxd login page.
-// Uses only Tailwind utility classes — no extra dependencies needed.
+// Login.tsx
+import { useState, ChangeEvent, FormEvent } from "react";
 
-import { useState } from "react";
+import { apiReq } from "../utils/api";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [rememberMe, setRememberMe] = useState<boolean>(false);
 
-  function handleSubmit(e) {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // TODO: wire up your auth logic here
-    console.log({ email, password, rememberMe });
+    const res = await apiReq("/login", { email, password });
+    if (res.error) {
+      alert(res.error);
+    } else {
+      window.location.href = "/"; 
+    }
   }
 
   return (
@@ -63,7 +66,7 @@ export default function Login() {
                   required
                   placeholder="you@example.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                   className="w-full px-3 py-2.5 text-sm border border-stone-200 rounded-lg bg-stone-50 text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-400 transition"
                 />
               </div>
@@ -86,7 +89,7 @@ export default function Login() {
                     required
                     placeholder="••••••••"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                     className="w-full px-3 py-2.5 pr-10 text-sm border border-stone-200 rounded-lg bg-stone-50 text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-400 transition"
                   />
                   <button
@@ -105,7 +108,7 @@ export default function Login() {
                 <input
                   type="checkbox"
                   checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setRememberMe(e.target.checked)}
                   className="w-4 h-4 rounded border-stone-300 accent-orange-700 cursor-pointer"
                 />
                 <span className="text-sm text-stone-500">Remember me for 30 days</span>
@@ -156,7 +159,12 @@ export default function Login() {
 
 // ─── OAuth Button ────────────────────────────────────────────────────────────
 
-function OAuthButton({ icon, label }) {
+interface OAuthButtonProps {
+  icon: string;
+  label: string;
+}
+
+function OAuthButton({ icon, label }: OAuthButtonProps) {
   return (
     <button
       type="button"

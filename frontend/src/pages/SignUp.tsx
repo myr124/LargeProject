@@ -1,7 +1,10 @@
 // SignUp.tsx
 import { useState, ChangeEvent, FormEvent } from "react";
+import { apiReq } from "../utils/api";
 
 interface FormState {
+  firstName: string;
+  lastName: string;
   username: string;
   email: string;
   password: string;
@@ -9,6 +12,8 @@ interface FormState {
 }
 
 interface FormErrors {
+  firstName?: string;
+  lastName?: string;
   username?: string;
   email?: string;
   password?: string;
@@ -18,6 +23,8 @@ interface FormErrors {
 
 export default function SignUp() {
   const [form, setForm] = useState<FormState>({
+    firstName: "",
+    lastName: "",
     username: "",
     email: "",
     password: "",
@@ -42,16 +49,15 @@ export default function SignUp() {
     return errs;
   }
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>): void {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const errs = validate();
-    if (Object.keys(errs).length > 0) {
-      setErrors(errs);
-      return;
+    const res = await apiReq("/register", form);
+    if (res.error) {
+      setErrors({ ...validate(), ...res.error });
+    } else{
+        alert("Account created successfully! Please check your email to verify your account.");
+        window.location.href = "/login";
     }
-    setErrors({});
-    // TODO: wire up your registration logic here
-    console.log(form);
   }
 
   return (
@@ -89,6 +95,33 @@ export default function SignUp() {
           {/* Card */}
           <div className="bg-white border border-stone-200 rounded-2xl p-8 shadow-sm">
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+
+
+
+
+              {/* First name */}
+              <Field
+                id="firstName"
+                label="First name"
+                type="text"
+                placeholder="First name"
+                value={form.firstName}
+                onChange={update("firstName")}
+                error={errors.firstName}
+                autoComplete="given-name"
+              />
+
+              {/* Last name */}
+              <Field
+                id="lastName"
+                label="Last name"
+                type="text"
+                placeholder="Last name"
+                value={form.lastName}
+                onChange={update("lastName")}
+                error={errors.lastName}
+                autoComplete="family-name"
+              />
 
               {/* Username */}
               <Field
