@@ -4,7 +4,8 @@ const mongoose = require('mongoose');
 const creationSchema = new mongoose.Schema({
     
     author_id:{
-        type: Number,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
         required: true
     },
     title:{

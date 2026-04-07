@@ -18,8 +18,11 @@ app.use(cors({
 
 
 app.use(express.json());
-var api = require('./api');
-api.setApp(app, mongoose);
+const userRoutes = require('./routes/userRoutes');
+const socialRoutes = require('./routes/socialRoutes');
+
+app.use('/api', userRoutes);
+app.use('/api', socialRoutes);
 
 app.listen(5001, () => {
     console.log('Server is running on port 5001');

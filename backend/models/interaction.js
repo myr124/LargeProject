@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const interactionSchema = new mongoose.Schema({
     user_id:{
-        type: Number,
+        type: mongoose.Schema.Types.ObjectId,
         required: true
     },
     creation_id:{
