@@ -3,7 +3,7 @@ import './App.css';
 import BreadBoxd from "./pages/BreadBoxd";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
-
+import ProfilePage from "./pages/ProfilePage";
 
 function App() {
     return (
@@ -12,6 +12,7 @@ function App() {
                 <Route path="/" element={<BreadBoxd />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<SignUp />} />
+                <Route path="/profile" element={<ProfilePage />} />
             </Routes>
         </BrowserRouter>
     );

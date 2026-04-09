@@ -12,10 +12,12 @@ export default function Login() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const res = await apiReq("/login", { email, password });
+    console.log("Login response:", res);
     if (res.error) {
       alert(res.error);
     } else {
-      window.location.href = "/"; 
+      localStorage.setItem("token", res.accessToken);
+      window.location.href = "/";
     }
   }
 

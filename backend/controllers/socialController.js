@@ -1,7 +1,7 @@
 const Creation = require('../models/creation');
 const Follow = require('../models/follow');
 const Interaction = require('../models/interaction');
-
+const User = require('../models/user');
 
 exports.postCreation = async (req, res) => {
     try{     
@@ -17,6 +17,7 @@ exports.postCreation = async (req, res) => {
             author_snippet
         });
         await newCreation.save();
+        await User.findByIdAndUpdate({_id: author_id}, {$inc: {postCount: 1}});
         res.status(201).json({message: 'Creation posted successfully'});
     }catch(e){
         console.error(e);
@@ -79,3 +80,14 @@ exports.interact = async (req, res)=>{
         res.status(500).json({error: e.message});
     }
 }
+
+exports.getPostsByUser = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const posts = await Creation.find({ author_id: userId });
+        res.status(200).json(posts);
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: e.message });
+    }
+};

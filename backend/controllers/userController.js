@@ -49,6 +49,8 @@ exports.login = async (req, res) => {
         }
     };
 
+
+
 exports.register = async (req, res) => {
     try{
         const { firstName, lastName, email, username, password } = req.body;
@@ -119,6 +121,21 @@ exports.deleteUser = async (req, res) => {
 
         res.status(200).json({message: 'User deleted successfully'});
 
+    }catch(e){
+        res.status(500).json({error: e.message});
+    }
+};
+
+exports.getUserInfo = async (req, res) => {
+    try{
+        const userId = req.params.userId;
+
+        const user = await User.findById(userId).select('-password');
+        if(!user){
+            return res.status(404).json({error: 'User not found'});
+        }
+
+        res.status(200).json(user);
     }catch(e){
         res.status(500).json({error: e.message});
     }

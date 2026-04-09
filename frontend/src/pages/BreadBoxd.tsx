@@ -1,6 +1,6 @@
 // BreadBoxd.tsx
 import { ReactNode } from "react";
-
+import Navbar from "../components/ui/Navbar";
 export default function BreadBoxd() {
   return (
     <div className="min-h-screen bg-stone-50 text-stone-800 font-sans">
@@ -24,35 +24,7 @@ export default function BreadBoxd() {
 
 // ─── Navbar ────────────────────────────────────────────────────────────────
 
-function Navbar() {
-  return (
-    <nav className="bg-white border-b border-stone-200 px-6 py-3 flex items-center justify-between">
-      <div className="flex items-center gap-2 text-lg font-medium text-stone-800">
-        <div className="w-7 h-7 bg-orange-700 rounded-md flex items-center justify-center text-sm">
-          🍞
-        </div>
-        BreadBoxd
-      </div>
 
-      <div className="hidden md:flex items-center gap-6 text-sm text-stone-500">
-        {["Discover", "My Recipes", "Lists", "Community"].map((link) => (
-          <a key={link} href="#" className="hover:text-stone-800 transition-colors">
-            {link}
-          </a>
-        ))}
-      </div>
-
-      <div className="flex items-center gap-2">
-        <button className="text-sm px-4 py-2 rounded-lg border border-stone-200 hover:bg-stone-50 transition-colors">
-          Log in
-        </button>
-        <button className="text-sm px-4 py-2 rounded-lg bg-orange-700 text-white hover:bg-orange-800 transition-colors">
-          Sign up
-        </button>
-      </div>
-    </nav>
-  );
-}
 
 // ─── Hero ───────────────────────────────────────────────────────────────────
 

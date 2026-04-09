@@ -17,3 +17,20 @@ export const apiReq = async(endpont: string, data: object) => {
         throw err;
     }
 }
+
+export const apiGet = async(endpont: string) => {
+
+    try{
+        const res = await fetch(`${BASE_URL}/${endpont}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        return res.json();
+    }catch(err){
+        console.error('API request error:', err);
+        throw err;
+    }
+}
+
