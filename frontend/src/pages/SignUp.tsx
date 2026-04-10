@@ -241,12 +241,12 @@ export default function SignUp() {
         </div>
       </div>
 
-      {/* Footer */}
+      {/* Footer
       <footer className="border-t border-stone-200 bg-stone-100 px-6 py-4 flex items-center justify-center gap-6 text-xs text-stone-400">
         {["About", "Privacy", "Terms", "Help"].map((l) => (
           <a key={l} href="#" className="hover:text-stone-600 transition-colors">{l}</a>
         ))}
-      </footer>
+      </footer> */}
     </div>
   );
 }

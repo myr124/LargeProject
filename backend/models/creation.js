@@ -39,8 +39,12 @@ const creationSchema = new mongoose.Schema({
     author_snippet:{
         type: Object,
         required: false
+    },
+    rating:{
+        type: Number,
+        enum : [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5],
+        default: 0
     }
-
 
 
 });

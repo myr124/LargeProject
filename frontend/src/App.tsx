@@ -4,6 +4,7 @@ import BreadBoxd from "./pages/BreadBoxd";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import ProfilePage from "./pages/ProfilePage";
+import Creation from "./pages/Creation";
 
 function App() {
     return (
@@ -13,6 +14,7 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/post" element={<Creation />} />
             </Routes>
         </BrowserRouter>
     );

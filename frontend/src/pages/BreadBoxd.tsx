@@ -17,14 +17,10 @@ export default function BreadBoxd() {
           <Sidebar />
         </div>
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }
-
-// ─── Navbar ────────────────────────────────────────────────────────────────
-
-
 
 // ─── Hero ───────────────────────────────────────────────────────────────────
 
@@ -264,16 +260,16 @@ function Sidebar() {
 }
 
 // ─── Footer ─────────────────────────────────────────────────────────────────
-
-function Footer() {
-  return (
-    <footer className="border-t border-stone-200 bg-stone-100 px-6 py-5 flex items-center justify-between text-xs text-stone-400">
-      <span>© 2026 BreadBoxd</span>
-      <div className="flex gap-4">
-        {["About", "Blog", "Privacy", "Terms"].map((l) => (
-          <a key={l} href="#" className="hover:text-stone-600 transition-colors">{l}</a>
-        ))}
-      </div>
-    </footer>
-  );
-}
+// 
+// function Footer() {
+//   return (
+//     <footer className="border-t border-stone-200 bg-stone-100 px-6 py-5 flex items-center justify-between text-xs text-stone-400">
+//       <span>© 2026 BreadBoxd</span>
+//       <div className="flex gap-4">
+//         {["About", "Blog", "Privacy", "Terms"].map((l) => (
+//           <a key={l} href="#" className="hover:text-stone-600 transition-colors">{l}</a>
+//         ))}
+//       </div>
+//     </footer>
+//   );
+// }

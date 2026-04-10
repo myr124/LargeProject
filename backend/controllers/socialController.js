@@ -81,10 +81,36 @@ exports.interact = async (req, res)=>{
     }
 }
 
+exports.rate = async(req, res)=>{
+    try{
+        const {user_id, post_id, rating} = req.body;
+        if(rating > 5) return res.status(400).json({error: 'Rating must be between 0 and 5'});
+
+        await Creation.findByIdAndUpdate({_id: post_id}, {$set: {rating}});
+        console.log(`User ${user_id} rated creation ${post_id} with a rating of ${rating}`);
+
+        res.status(200).json({message: 'Rating updated successfully'});
+    }catch(e){
+        console.error(e);
+        res.status(500).json({error: e.message});
+    }
+}
+
 exports.getPostsByUser = async (req, res) => {
     try {
         const { userId } = req.params;
         const posts = await Creation.find({ author_id: userId });
+        res.status(200).json(posts);
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: e.message });
+    }
+};
+
+exports.getPostsById = async (req, res) => {
+    try {
+        const { postId } = req.params;
+        const posts = await Creation.find({ _id: postId });
         res.status(200).json(posts);
     } catch (e) {
         console.error(e);
