@@ -85,8 +85,33 @@ const handleRate = async (ratingValue: number) => {
     }
   };
 
+  const [commentText, setCommentText] = useState("");
+
+const handleComment = async () => {
+    if (!commentText.trim()) return; 
+
+    try {
+      const res = await apiReq('comment', { 
+        userId: currentUserId,
+        postId: post._id,
+        comment: commentText 
+      });
+      
+      if (!res.error) {
+        console.log("Commented successfully");
+        setCommentText(""); 
+        alert("Comment posted!"); 
+      } else {
+        console.error("Comment failed:", res.error);
+      }
+    } catch(err) {
+      console.error("Network error during comment", err);
+    }
+  }
+
   if (loading) return <div className="flex justify-center p-20 text-stone-400 animate-pulse">Loading...</div>;
   if (!post) return <div className="flex justify-center p-20">Post not found.</div>;
+
 
   return (
 <div className="min-h-screen bg-stone-50">
@@ -155,7 +180,30 @@ const handleRate = async (ratingValue: number) => {
                     onClick={handleSave}>
                       Save to List
                     </button>
+                    
                   </div>
+                  {/* Comment Input Section */}
+              <div className="pt-8 border-t border-stone-100">
+                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-stone-400 mb-4">
+                  Leave a Comment
+                </h3>
+                <div className="flex gap-3">
+                  <input
+                    type="text"
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    placeholder="What did you think of this recipe?"
+                    className="flex-1 bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-stone-700 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all"
+                  />
+                  <button 
+                    onClick={handleComment}
+                    disabled={!commentText.trim()} // Disables button if input is empty
+                    className="px-6 py-3 rounded-xl bg-orange-600 text-white font-bold text-sm hover:bg-orange-700 disabled:opacity-50 disabled:hover:bg-orange-600 transition-all"
+                  >
+                    Post
+                  </button>
+                </div>
+              </div>
                 </div>
               </div>
             </section>

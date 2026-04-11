@@ -150,3 +150,30 @@ exports.savePost = async (req, res) => {
         res.status(500).json({error: e.message});
     }
 }
+
+exports.comment = async(req, res) => {
+
+    try{
+        const {userId, postId, comment} = req.body;
+
+        const user = await User.findById(userId);
+        
+        if(!user){
+            return res.status(404).json({error: 'User not found'});
+        }
+
+        const post = await Creation.findById(postId);
+        if(!post){
+            return res.status(404).json({error: 'Post not found'});
+        }
+
+        post.comments.push(comment);
+        await post.save();
+
+        res.status(200).json({message: "User commented: " , comment});
+    }
+    catch(e){
+        res.status(500).json({error: e.message});
+        console.log(e);
+    }
+}
