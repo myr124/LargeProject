@@ -1,7 +1,23 @@
 // BreadBoxd.tsx
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import Navbar from "../components/ui/Navbar";
+import { apiGet } from "../utils/api";
+import useFetchUser from "../components/FetchUserHook";
 export default function BreadBoxd() {
+  
+  const userId = useMemo(() => {
+    const token = localStorage.getItem("token");
+    if (!token || token === "undefined") return null;
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      return payload.userId ?? null;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const user = useFetchUser(userId);
   return (
     <div className="min-h-screen bg-stone-50 text-stone-800 font-sans">
       <Navbar />
@@ -20,7 +36,9 @@ export default function BreadBoxd() {
       {/* <Footer /> */}
     </div>
   );
+
 }
+
 
 // ─── Hero ───────────────────────────────────────────────────────────────────
 
@@ -67,35 +85,94 @@ const popularRecipes: RecipeCardProps[] = [
 ];
 
 function PopularRecipes() {
+  const [recipes, setRecipes] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPopular = async () => {
+      try {
+        // Change "getAllPosts" to whatever your endpoint is to get all recipes
+        const res = await apiGet("getAllPosts"); 
+        
+        if (!res.error && Array.isArray(res)) {
+          // Grab the first 4 recipes to display in this row
+          setRecipes(res.slice(0, 4));
+        }
+      } catch (err) {
+        console.error("Failed to fetch popular recipes", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPopular();
+  }, []);
+
   return (
     <section className="max-w-6xl mx-auto px-6 py-8">
       <div className="flex items-baseline justify-between mb-4">
         <h2 className="text-base font-medium text-stone-800">🔥 Popular this week</h2>
-        <a href="#" className="text-xs text-orange-700 hover:underline">See all →</a>
+        <Link to="/discover" className="text-xs text-orange-700 hover:underline">See all →</Link>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {popularRecipes.map((r) => (
-          <RecipeCard key={r.title} {...r} />
-        ))}
-      </div>
+
+      {loading ? (
+        <div className="flex gap-4 animate-pulse">
+            {/* Loading Skeletons */}
+            {[1, 2, 3, 4].map(n => (
+              <div key={n} className="h-40 flex-1 bg-stone-200 rounded-xl" />
+            ))}
+        </div>
+      ) : recipes.length === 0 ? (
+        <div className="text-sm text-stone-500 py-8 text-center border border-dashed border-stone-300 rounded-xl">
+          No recipes found. Start cooking to populate this list!
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {recipes.map((r) => (
+            <RecipeCard key={r._id} recipe={r} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
 
-function RecipeCard({ emoji, bg, title, rating, logs }: RecipeCardProps) {
+function RecipeCard({ recipe }: { recipe: any }) {
+  // Grab the first image if it exists
+  const imageUrl = recipe.image_urls?.[0];
+   
+
   return (
-    <div className="bg-white border border-stone-200 rounded-xl overflow-hidden cursor-pointer hover:border-stone-300 transition-colors">
-      <div className={`${bg} h-28 flex items-center justify-center text-4xl`}>
-        {emoji}
+    // The Link tag wraps the card. Clicking it goes to /post/YOUR_DYNAMIC_ID
+    <Link 
+      to={`/post/${recipe._id}`} 
+      className="block bg-white border border-stone-200 rounded-xl overflow-hidden cursor-pointer hover:border-stone-300 transition-all group hover:shadow-md"
+    >
+      {/* Image Area */}
+      <div className="h-28 bg-stone-100 flex items-center justify-center overflow-hidden">
+        {imageUrl ? (
+          <img 
+            src={imageUrl} 
+            alt={recipe.title} 
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        ) : (
+          <span className="text-4xl">🍞</span> /* Fallback if no image */
+        )}
       </div>
+
+      {/* Info Area */}
       <div className="p-3">
-        <p className="text-sm font-medium text-stone-800 mb-1">{title}</p>
-        <div className="flex items-center gap-2 text-xs text-stone-400">
-          <span className="text-orange-600">{rating}</span>
-          <span>{logs}</span>
+        <p className="text-sm font-bold text-stone-800 mb-1 truncate">
+          {recipe.title}
+        </p>
+        <div className="flex items-center justify-between text-xs text-stone-400">
+          <span className="text-orange-600 font-medium tracking-wide">
+            ★ {recipe.rating ? recipe.rating.toFixed(1) : "New"}
+          </span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -163,6 +240,7 @@ interface Stat {
   label: string;
 }
 
+//TODO: Replace these with real stats
 const stats: Stat[] = [
   { num: "142", label: "Recipes logged" },
   { num: "38",  label: "Unique cuisines" },

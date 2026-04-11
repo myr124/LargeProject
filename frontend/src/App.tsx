@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import ProfilePage from "./pages/ProfilePage";
 import Creation from "./pages/Creation";
+import SavedPosts from "./pages/SavedPosts";
 
 function App() {
     return (
@@ -14,7 +15,8 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/post" element={<Creation />} />
+                <Route path="/post/:id" element={<Creation />} />
+                <Route path="/saved" element={<SavedPosts />} />
             </Routes>
         </BrowserRouter>
     );

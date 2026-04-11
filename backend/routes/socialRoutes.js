@@ -10,5 +10,7 @@ router.post('/interact', socialController.interact);
 router.get('/getPostsByUser/:userId', socialController.getPostsByUser);
 router.get('/getPostsById/:postId', socialController.getPostsById);
 router.post('/rate', socialController.rate);
+router.get('/getAllPosts', socialController.getAllPosts);
+router.post('/savePost', socialController.savePost);
 
 module.exports = router;

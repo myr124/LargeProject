@@ -4,7 +4,7 @@ import { useParams, Link } from "react-router-dom";
 import Navbar from "../components/ui/Navbar";
 
 export default function PostDetail() {
- // const { id } = useParams<{ id: string }>(); 
+ const { id } = useParams<{ id: string }>(); 
   const [post, setPosts] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [hover, setHover] = useState(0);
@@ -17,7 +17,7 @@ export default function PostDetail() {
     } catch { return null; }
   }, []);
 
-  const id = '69d87a9c15f4d3ad6f6a0175'; 
+ // const id = '69d87a9c15f4d3ad6f6a0175'; 
   useEffect(() => {
   if (!id) return;
 
@@ -71,6 +71,19 @@ const handleRate = async (ratingValue: number) => {
     }
   };
 
+  const handleSave = async () =>{
+    try{
+      const res = await apiReq('savePost', {
+        userId: currentUserId,
+        postId: post._id
+      });
+      if(!res.error){
+        console.log("Saved successfully");
+      }
+    }catch(err){
+      console.error("Save failed", err);
+    }
+  };
 
   if (loading) return <div className="flex justify-center p-20 text-stone-400 animate-pulse">Loading...</div>;
   if (!post) return <div className="flex justify-center p-20">Post not found.</div>;
@@ -138,7 +151,8 @@ const handleRate = async (ratingValue: number) => {
                     ))}
                   </div>
                   <div className="flex gap-4 mt-2">
-                    <button className="px-6 py-2 rounded-full bg-stone-900 text-white font-bold text-sm hover:bg-stone-800 transition-all shadow-lg shadow-stone-200">
+                    <button className="px-6 py-2 rounded-full bg-stone-900 text-white font-bold text-sm hover:bg-stone-800 transition-all shadow-lg shadow-stone-200"
+                    onClick={handleSave}>
                       Save to List
                     </button>
                   </div>

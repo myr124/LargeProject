@@ -17,13 +17,12 @@ export default function Navbar() {
             </div>
             BreadBoxd
         </div>
-
+        {/* "Discover", "My Recipes", "Lists", "Community" */}
         <div className="hidden md:flex items-center gap-6 text-sm text-stone-500">
-            {["Discover", "My Recipes", "Lists", "Community"].map((link) => (
-            <a key={link} href="#" className="hover:text-stone-800 transition-colors">
-                {link}
-            </a>
-            ))}
+            <button className ="" onClick={() => window.location.href = "/"}> Discover </button>
+            <button className ="" onClick={() => window.location.href = "/saved"}> My Recipes </button>
+            <button className ="" onClick={() => window.location.href = "/lists"}> Lists </button>
+            <button className ="" onClick={() => window.location.href = "/community"}> Community </button>
         </div>
 
         <div className="flex items-center gap-2">
