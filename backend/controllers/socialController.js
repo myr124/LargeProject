@@ -151,6 +151,86 @@ exports.savePost = async (req, res) => {
     }
 }
 
+exports.getTrendingIngredients = async (req, res) => {
+    try {
+        const results = await Creation.aggregate([
+            { $unwind: "$ingredients" },
+            { $group: { _id: "$ingredients", count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+            { $limit: 5 },
+        ]);
+        res.status(200).json(results.map(r => ({ name: r._id, count: r.count })));
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
+exports.getSuggestedPosts = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        // Top-rated posts not authored by this user and not already saved
+        const user = await User.findById(userId).select('savedPosts');
+        const excluded = user ? [...(user.savedPosts || []).map(id => id.toString()), userId] : [userId];
+
+        const posts = await Creation.find({ author_id: { $ne: userId } })
+            .sort({ rating: -1 })
+            .limit(20);
+
+        // Filter out already-saved posts and pick top 3
+        const filtered = posts
+            .filter(p => !excluded.includes(p._id.toString()))
+            .slice(0, 3);
+
+        res.status(200).json(filtered);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
+exports.getFollowing = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const follows = await Follow.find({ follower_id: userId }).select('following_id');
+        res.status(200).json(follows.map(f => f.following_id.toString()));
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
+exports.getFriendActivity = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        const follows = await Follow.find({ follower_id: userId });
+        const followingIds = follows.map(f => f.following_id);
+
+        if (followingIds.length === 0) {
+            return res.status(200).json([]);
+        }
+
+        const posts = await Creation.find({ author_id: { $in: followingIds } })
+            .sort({ created_at: -1 })
+            .limit(20);
+
+        const uniqueAuthorIds = [...new Set(posts.map(p => p.author_id.toString()))];
+        const authors = await User.find({ _id: { $in: uniqueAuthorIds } }).select('firstName lastName username profilePictureUrl');
+        const authorMap = Object.fromEntries(authors.map(a => [a._id.toString(), a]));
+
+        const activity = posts.map(post => ({
+            postId: post._id,
+            postTitle: post.title,
+            postRating: post.rating,
+            createdAt: post.created_at,
+            author: authorMap[post.author_id.toString()] ?? null,
+        }));
+
+        res.status(200).json(activity);
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: e.message });
+    }
+};
+
 exports.comment = async(req, res) => {
 
     try{

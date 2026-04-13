@@ -1,7 +1,7 @@
 // BreadBoxd.tsx
-import { useEffect, useState } from "react";
-import type { ReactNode } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
+import { Flame, Users, BarChart2, TrendingUp, Sparkles, Star, Wheat } from "lucide-react";
 import Navbar from "../components/ui/Navbar";
 import { apiGet } from "../utils/api";
 import { Button } from "@/components/ui/button";
@@ -76,7 +76,7 @@ function PopularRecipes() {
   return (
     <section className="max-w-6xl mx-auto px-6 py-8">
       <div className="flex items-baseline justify-between mb-4">
-        <h2 className="text-base font-medium text-foreground">🔥 Popular this week</h2>
+        <h2 className="text-base font-medium text-foreground flex items-center gap-1.5"><Flame className="w-4 h-4 text-orange-500" /> Popular this week</h2>
         <Link to="/discover" className="text-xs text-orange-700 dark:text-orange-400 hover:underline">See all →</Link>
       </div>
 
@@ -117,7 +117,7 @@ function RecipeCard({ recipe }: { recipe: any }) {
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <span className="text-4xl">🍞</span>
+          <Wheat className="w-10 h-10 text-muted-foreground" />
         )}
       </div>
 
@@ -126,8 +126,9 @@ function RecipeCard({ recipe }: { recipe: any }) {
           {recipe.title}
         </p>
         <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span className="text-orange-600 dark:text-orange-400 font-medium tracking-wide">
-            ★ {recipe.rating ? recipe.rating.toFixed(1) : "New"}
+          <span className="flex items-center gap-0.5 text-orange-600 dark:text-orange-400 font-medium">
+            <Star className="w-3 h-3 fill-current" />
+            {recipe.rating ? recipe.rating.toFixed(1) : "New"}
           </span>
         </div>
       </div>
@@ -137,80 +138,173 @@ function RecipeCard({ recipe }: { recipe: any }) {
 
 // ─── Activity Feed ──────────────────────────────────────────────────────────
 
-interface Activity {
-  initials: string;
-  avatarBg: string;
-  avatarText: string;
-  text: ReactNode;
-  time: string;
+interface ActivityItem {
+  postId: string;
+  postTitle: string;
+  postRating: number;
+  createdAt: string;
+  author: { firstName: string; lastName: string; username: string; profilePictureUrl?: string } | null;
 }
 
-const activities: Activity[] = [
-  {
-    initials: "JK", avatarBg: "bg-orange-100 dark:bg-orange-900", avatarText: "text-orange-800 dark:text-orange-200",
-    text: <><strong>Jamie K.</strong> logged <strong>Sourdough Focaccia</strong> and rated it ★★★★★</>,
-    time: "20 min ago",
-  },
-  {
-    initials: "SR", avatarBg: "bg-green-100 dark:bg-green-900", avatarText: "text-green-800 dark:text-green-200",
-    text: <><strong>Sara R.</strong> added <strong>Miso Glazed Salmon</strong> to her "Weeknight Wins" list</>,
-    time: "1 hr ago",
-  },
-  {
-    initials: "TM", avatarBg: "bg-indigo-100 dark:bg-indigo-900", avatarText: "text-indigo-800 dark:text-indigo-200",
-    text: <><strong>Tom M.</strong> reviewed <strong>Beef Bourguignon</strong> — "Worth every hour of prep."</>,
-    time: "3 hr ago",
-  },
-  {
-    initials: "LL", avatarBg: "bg-pink-100 dark:bg-pink-900", avatarText: "text-pink-800 dark:text-pink-200",
-    text: <><strong>Laura L.</strong> logged <strong>Shakshuka</strong> for the 4th time this month</>,
-    time: "Yesterday",
-  },
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "Just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days}d ago`;
+  return new Date(dateStr).toLocaleDateString();
+}
+
+function initials(first: string, last: string): string {
+  return `${first[0] ?? ""}${last[0] ?? ""}`.toUpperCase();
+}
+
+const avatarColors = [
+  "bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200",
+  "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200",
+  "bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200",
+  "bg-pink-100 dark:bg-pink-900 text-pink-800 dark:text-pink-200",
+  "bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200",
 ];
 
 function ActivityFeed() {
+  const userId = useMemo(() => {
+    const token = localStorage.getItem("token");
+    if (!token || token === "undefined") return null;
+    try {
+      return JSON.parse(atob(token.split(".")[1])).userId ?? null;
+    } catch { return null; }
+  }, []);
+
+  const [activity, setActivity] = useState<ActivityItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!userId) { setLoading(false); return; }
+    apiGet(`getFriendActivity/${userId}`)
+      .then((res) => { if (Array.isArray(res)) setActivity(res); })
+      .finally(() => setLoading(false));
+  }, [userId]);
+
   return (
     <div>
       <div className="flex items-baseline justify-between mb-4">
-        <h2 className="text-base font-medium text-foreground">👥 Friend activity</h2>
-        <a href="#" className="text-xs text-orange-700 dark:text-orange-400 hover:underline">Follow more →</a>
+        <h2 className="text-base font-medium text-foreground flex items-center gap-1.5"><Users className="w-4 h-4" /> Friend activity</h2>
       </div>
-      <div className="flex flex-col gap-4">
-        {activities.map((a, i) => (
-          <div key={i} className="flex items-start gap-3">
-            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 ${a.avatarBg} ${a.avatarText}`}>
-              {a.initials}
+
+      {loading ? (
+        <div className="flex flex-col gap-4 animate-pulse">
+          {[1, 2, 3].map(n => (
+            <div key={n} className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-full bg-muted flex-shrink-0" />
+              <div className="flex-1 space-y-1.5">
+                <div className="h-3 bg-muted rounded w-3/4" />
+                <div className="h-2.5 bg-muted rounded w-1/4" />
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground leading-relaxed">{a.text}</p>
-              <p className="text-xs text-muted-foreground/70 mt-0.5">{a.time}</p>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : activity.length === 0 ? (
+        <div className="text-sm text-muted-foreground py-6 text-center border border-dashed border-border rounded-xl">
+          {userId ? "Follow some cooks to see their activity here." : "Log in to see friend activity."}
+        </div>
+      ) : (
+        <div className="flex flex-col gap-4">
+          {activity.map((a, i) => {
+            const author = a.author;
+            const colorClass = avatarColors[i % avatarColors.length];
+            const name = author ? `${author.firstName} ${author.lastName}` : "Someone";
+            const stars = a.postRating ? "★".repeat(Math.round(a.postRating)) : null;
+            return (
+              <div key={a.postId} className="flex items-start gap-3">
+                <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 overflow-hidden ${colorClass}`}>
+                  {author?.profilePictureUrl ? (
+                    <img src={author.profilePictureUrl} alt={name} className="w-full h-full object-cover" />
+                  ) : (
+                    author ? initials(author.firstName, author.lastName) : "?"
+                  )}
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    <strong className="text-foreground">{name}</strong> posted{" "}
+                    <Link to={`/post/${a.postId}`} className="font-semibold text-foreground hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
+                      {a.postTitle}
+                    </Link>
+                    {stars && (
+                      <span className="inline-flex ml-1">
+                        {Array.from({ length: Math.round(a.postRating) }).map((_, i) => (
+                          <Star key={i} className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                        ))}
+                      </span>
+                    )}
+                  </p>
+                  <p className="text-xs text-muted-foreground/70 mt-0.5">{timeAgo(a.createdAt)}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
 
 // ─── Your Stats ─────────────────────────────────────────────────────────────
 
-interface Stat {
-  num: string;
-  label: string;
-}
-
-const stats: Stat[] = [
-  { num: "142", label: "Recipes logged" },
-  { num: "38",  label: "Unique cuisines" },
-  { num: "12",  label: "Lists made" },
-];
-
-const cuisineTags: string[] = ["Italian", "Japanese", "Mexican", "Thai", "French", "Indian"];
-
 function YourStats() {
+  const userId = useMemo(() => {
+    const token = localStorage.getItem("token");
+    if (!token || token === "undefined") return null;
+    try {
+      return JSON.parse(atob(token.split(".")[1])).userId ?? null;
+    } catch { return null; }
+  }, []);
+
+  const [user, setUser] = useState<any>(null);
+  const [tags, setTags] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!userId) { setLoading(false); return; }
+    Promise.all([
+      apiGet(`getUserInfo/${userId}`),
+      apiGet(`getPostsByUser/${userId}`),
+    ]).then(([userRes, postsRes]) => {
+      if (!userRes.error) setUser(userRes);
+      if (Array.isArray(postsRes)) {
+        const allTags = postsRes.flatMap((p: any) => Array.isArray(p.tags) ? p.tags : []);
+        setTags([...new Set(allTags as string[])].slice(0, 8));
+      }
+    }).finally(() => setLoading(false));
+  }, [userId]);
+
+  if (!userId) return (
+    <div className="text-sm text-muted-foreground py-6 text-center border border-dashed border-border rounded-xl">
+      <a href="/login" className="text-orange-700 dark:text-orange-400 hover:underline">Log in</a> to see your stats.
+    </div>
+  );
+
+  if (loading) return (
+    <div className="animate-pulse space-y-3">
+      <div className="h-4 bg-muted rounded w-24" />
+      <div className="grid grid-cols-3 gap-3">
+        {[1,2,3].map(n => <div key={n} className="h-16 bg-muted rounded-lg" />)}
+      </div>
+    </div>
+  );
+
+  const stats = [
+    { num: user?.postCount ?? 0,              label: "Recipes logged" },
+    { num: user?.followerCount ?? 0,           label: "Followers" },
+    { num: user?.savedPosts?.length ?? 0,      label: "Saved" },
+  ];
+
   return (
     <div>
-      <h2 className="text-base font-medium text-foreground mb-4">📊 Your stats</h2>
+      <h2 className="text-base font-medium text-foreground mb-4 flex items-center gap-1.5"><BarChart2 className="w-4 h-4" /> Your stats</h2>
       <div className="grid grid-cols-3 gap-3 mb-5">
         {stats.map((s) => (
           <div key={s.label} className="bg-muted rounded-lg p-3 text-center">
@@ -219,78 +313,106 @@ function YourStats() {
           </div>
         ))}
       </div>
-      <p className="text-xs text-muted-foreground mb-2">Your most-cooked cuisines</p>
-      <div className="flex flex-wrap gap-1.5">
-        {cuisineTags.map((tag) => (
-          <span key={tag} className="text-xs bg-orange-100 dark:bg-orange-900/40 text-orange-800 dark:text-orange-300 px-3 py-1 rounded-full">
-            {tag}
-          </span>
-        ))}
-      </div>
+      {tags.length > 0 && (
+        <>
+          <p className="text-xs text-muted-foreground mb-2">Your tags</p>
+          <div className="flex flex-wrap gap-1.5">
+            {tags.map((tag) => (
+              <span key={tag} className="text-xs bg-orange-100 dark:bg-orange-900/40 text-orange-800 dark:text-orange-300 px-3 py-1 rounded-full">
+                {tag}
+              </span>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
 
 // ─── Sidebar ────────────────────────────────────────────────────────────────
 
-interface TrendingItem {
-  rank: string;
-  name: string;
-  count: string;
-}
-
-interface SuggestedItem {
-  emoji: string;
-  bg: string;
-  title: string;
-  reason: string;
-}
-
-const trending: TrendingItem[] = [
-  { rank: "#1", name: "White miso", count: "3.2k uses" },
-  { rank: "#2", name: "Nduja",      count: "2.8k uses" },
-  { rank: "#3", name: "Yuzu",       count: "2.1k uses" },
-  { rank: "#4", name: "Sumac",      count: "1.9k uses" },
-  { rank: "#5", name: "Tamarind",   count: "1.6k uses" },
-];
-
-const suggested: SuggestedItem[] = [
-  { emoji: "🫕", bg: "bg-orange-50 dark:bg-orange-900/30", title: "Birria Tacos", reason: "Based on your Mexican logs" },
-  { emoji: "🍱", bg: "bg-green-50 dark:bg-green-900/30",  title: "Bento Bowl",   reason: "Popular with your friends" },
-];
-
 function Sidebar() {
+  const userId = useMemo(() => {
+    const token = localStorage.getItem("token");
+    if (!token || token === "undefined") return null;
+    try {
+      return JSON.parse(atob(token.split(".")[1])).userId ?? null;
+    } catch { return null; }
+  }, []);
+
+  const [trending, setTrending] = useState<{ name: string; count: number }[]>([]);
+  const [suggested, setSuggested] = useState<any[]>([]);
+
+  useEffect(() => {
+    apiGet("getTrendingIngredients").then((res) => {
+      if (Array.isArray(res)) setTrending(res);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!userId) return;
+    apiGet(`getSuggestedPosts/${userId}`).then((res) => {
+      if (Array.isArray(res)) setSuggested(res);
+    });
+  }, [userId]);
+
   return (
     <aside className="flex flex-col gap-8 pt-1">
+      {/* Trending Ingredients */}
       <div>
-        <h2 className="text-base font-medium text-foreground mb-3">📈 Trending ingredients</h2>
-        <div className="flex flex-col gap-2">
-          {trending.map((t) => (
-            <div key={t.rank} className="flex items-center gap-3 px-3 py-2 bg-muted rounded-lg cursor-pointer hover:bg-accent transition-colors">
-              <span className="text-xs font-medium text-orange-700 dark:text-orange-400 w-5">{t.rank}</span>
-              <span className="text-sm font-medium text-foreground flex-1">{t.name}</span>
-              <span className="text-xs text-muted-foreground">{t.count}</span>
-            </div>
-          ))}
-        </div>
+        <h2 className="text-base font-medium text-foreground mb-3 flex items-center gap-1.5"><TrendingUp className="w-4 h-4" /> Trending ingredients</h2>
+        {trending.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No data yet.</p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {trending.map((t, i) => (
+              <div key={t.name} className="flex items-center gap-3 px-3 py-2 bg-muted rounded-lg">
+                <span className="text-xs font-medium text-orange-700 dark:text-orange-400 w-5">#{i + 1}</span>
+                <span className="text-sm font-medium text-foreground flex-1 truncate">{t.name}</span>
+                <span className="text-xs text-muted-foreground">{t.count} use{t.count !== 1 ? "s" : ""}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      <div>
-        <h2 className="text-base font-medium text-foreground mb-3">✨ Suggested for you</h2>
-        <div className="flex flex-col gap-3">
-          {suggested.map((s) => (
-            <div key={s.title} className="flex bg-card border border-border rounded-xl overflow-hidden cursor-pointer hover:border-border/80 transition-colors">
-              <div className={`w-14 h-14 flex-shrink-0 flex items-center justify-center text-2xl ${s.bg}`}>
-                {s.emoji}
-              </div>
-              <div className="px-3 py-2">
-                <p className="text-sm font-medium text-foreground">{s.title}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{s.reason}</p>
-              </div>
+      {/* Suggested for You */}
+      {userId && (
+        <div>
+          <h2 className="text-base font-medium text-foreground mb-3 flex items-center gap-1.5"><Sparkles className="w-4 h-4" /> Suggested for you</h2>
+          {suggested.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Nothing to suggest yet.</p>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {suggested.map((post) => (
+                <Link
+                  key={post._id}
+                  to={`/post/${post._id}`}
+                  className="flex bg-card border border-border rounded-xl overflow-hidden hover:border-border/80 transition-colors"
+                >
+                  <div className="w-14 h-14 flex-shrink-0 bg-muted overflow-hidden">
+                    {post.image_urls?.[0] ? (
+                      <img src={post.image_urls[0]} alt={post.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Wheat className="w-6 h-6 text-muted-foreground" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="px-3 py-2 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{post.title}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {post.rating > 0 ? (
+                      <span className="flex items-center gap-0.5"><Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />{post.rating.toFixed(1)}</span>
+                    ) : "New"}
+                    </p>
+                  </div>
+                </Link>
+              ))}
             </div>
-          ))}
+          )}
         </div>
-      </div>
+      )}
     </aside>
   );
 }

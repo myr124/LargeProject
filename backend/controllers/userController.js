@@ -126,6 +126,34 @@ exports.deleteUser = async (req, res) => {
     }
 };
 
+exports.updateUser = async (req, res) => {
+    try {
+        const { userId, firstName, lastName, username, profilePictureUrl } = req.body;
+
+        const updates = {};
+        if (firstName !== undefined) updates.firstName = firstName;
+        if (lastName !== undefined) updates.lastName = lastName;
+        if (username !== undefined) updates.username = username;
+        if (profilePictureUrl !== undefined) updates.profilePictureUrl = profilePictureUrl;
+
+        const updated = await User.findByIdAndUpdate(userId, { $set: updates }, { new: true }).select('-password');
+        if (!updated) return res.status(404).json({ error: 'User not found' });
+
+        res.status(200).json(updated);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
+exports.getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find({}).select('-password');
+        res.status(200).json(users);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
 exports.getUserInfo = async (req, res) => {
     try{
         const userId = req.params.userId;

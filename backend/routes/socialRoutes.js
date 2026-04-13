@@ -13,5 +13,9 @@ router.post('/rate', socialController.rate);
 router.get('/getAllPosts', socialController.getAllPosts);
 router.post('/savePost', socialController.savePost);
 router.post('/comment', socialController.comment);
+router.get('/getFriendActivity/:userId', socialController.getFriendActivity);
+router.get('/getFollowing/:userId', socialController.getFollowing);
+router.get('/getTrendingIngredients', socialController.getTrendingIngredients);
+router.get('/getSuggestedPosts/:userId', socialController.getSuggestedPosts);
 
 module.exports = router;

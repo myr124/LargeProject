@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { Wheat, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { apiGet } from "../utils/api";
 import useFetchUser from "../components/FetchUserHook";
@@ -80,7 +81,9 @@ export default function SavedPosts() {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-4xl">🍞</div>
+                      <div className="w-full h-full flex items-center justify-center">
+                      <Wheat className="w-10 h-10 text-muted-foreground" />
+                    </div>
                     )}
                   </div>
 
@@ -96,8 +99,8 @@ export default function SavedPosts() {
                     </div>
 
                     <div className="pt-4 border-t border-border flex justify-between items-center">
-                      <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                        ★ {post.rating ? post.rating.toFixed(1) : "New"}
+                      <span className="flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        <Star className="w-3 h-3" /> {post.rating ? post.rating.toFixed(1) : "New"}
                       </span>
                       <span className="text-xs text-muted-foreground">
                         {new Date(post.created_at).toLocaleDateString()}

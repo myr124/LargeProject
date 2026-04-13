@@ -1,6 +1,7 @@
 // Login.tsx
 import { useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
+import { Wheat } from "lucide-react";
 import { apiReq } from "../utils/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,7 +32,9 @@ export default function Login() {
     <div className="min-h-screen bg-background flex flex-col">
       <nav className="bg-card border-b border-border px-6 py-3 flex items-center justify-between">
         <a href="/" className="flex items-center gap-2 text-lg font-medium text-foreground">
-          <div className="w-7 h-7 bg-orange-700 rounded-md flex items-center justify-center text-sm">🍞</div>
+          <div className="w-7 h-7 bg-orange-700 rounded-md flex items-center justify-center">
+            <Wheat className="w-4 h-4 text-white" />
+          </div>
           BreadBoxd
         </a>
         <div className="flex items-center gap-3">
@@ -48,8 +51,8 @@ export default function Login() {
       <div className="flex flex-1 items-center justify-center px-4 py-16">
         <div className="w-full max-w-sm">
           <div className="text-center mb-8">
-            <div className="w-14 h-14 bg-orange-100 dark:bg-orange-900/40 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">
-              🍞
+            <div className="w-14 h-14 bg-orange-100 dark:bg-orange-900/40 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Wheat className="w-7 h-7 text-orange-700 dark:text-orange-400" />
             </div>
             <h1 className="text-2xl font-medium text-foreground mb-1">Welcome back</h1>
             <p className="text-sm text-muted-foreground">Log in to your BreadBoxd account</p>

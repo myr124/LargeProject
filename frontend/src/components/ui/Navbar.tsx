@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Wheat } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DarkModeToggle from "@/components/DarkModeToggle";
 
@@ -11,8 +12,8 @@ export default function Navbar() {
         className="flex items-center gap-2 text-lg font-medium text-foreground cursor-pointer"
         onClick={() => (window.location.href = "/")}
       >
-        <div className="w-7 h-7 bg-orange-700 rounded-md flex items-center justify-center text-sm">
-          🍞
+        <div className="w-7 h-7 bg-orange-700 rounded-md flex items-center justify-center">
+          <Wheat className="w-4 h-4 text-white" />
         </div>
         BreadBoxd
       </div>
