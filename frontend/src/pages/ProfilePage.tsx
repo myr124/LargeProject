@@ -1,10 +1,12 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { Trash2 } from "lucide-react";
+import { motion } from "framer-motion";
 import { apiGet, apiReq } from "../utils/api";
 import Navbar from "../components/ui/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { fadeUp, slideInLeft, staggerContainer, staggerItem } from "../utils/motion";
 
 const PLACEHOLDER = "https://cdn.pixabay.com/photo/2023/02/18/11/00/icon-7797704_640.png";
 
@@ -107,7 +109,12 @@ export default function ProfilePage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
 
         {/* Header */}
-        <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-end gap-4">
+        <motion.div
+          className="mb-6 flex flex-col sm:flex-row items-start sm:items-end gap-4"
+          variants={slideInLeft}
+          initial="hidden"
+          animate="show"
+        >
           <div className="h-32 w-32 rounded-full border-4 border-card ring-2 ring-border overflow-hidden shadow-md flex-shrink-0">
             <img
               src={user.profilePictureUrl || PLACEHOLDER}
@@ -143,10 +150,15 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Stats */}
-        <div className="flex gap-8 pt-4 border-t border-border">
+        <motion.div
+          className="flex gap-8 pt-4 border-t border-border"
+          variants={fadeUp}
+          initial="hidden"
+          animate="show"
+        >
           <div className="text-center">
             <div className="font-semibold text-foreground">{user.postCount ?? 0}</div>
             <div className="text-sm text-muted-foreground">Posts</div>
@@ -159,7 +171,7 @@ export default function ProfilePage() {
             <div className="font-semibold text-foreground">{user.followingCount ?? 0}</div>
             <div className="text-sm text-muted-foreground">Following</div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Posts */}
         <div className="mt-8">
@@ -167,9 +179,14 @@ export default function ProfilePage() {
           {posts.length === 0 ? (
             <p className="text-sm text-muted-foreground">Nothing to see here.</p>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-8">
+            <motion.div
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-8"
+              variants={staggerContainer}
+              initial="hidden"
+              animate="show"
+            >
               {posts.map((post) => (
-                <div key={post._id} className="group relative">
+                <motion.div key={post._id} className="group relative" variants={staggerItem} whileHover={{ y: -4, transition: { duration: 0.2 } }}>
                   <Link to={`/post/${post._id}`} className="block">
                     <Card className="overflow-hidden p-0 h-full hover:shadow-md transition-shadow">
                       <div className="aspect-video overflow-hidden bg-muted">
@@ -200,9 +217,9 @@ export default function ProfilePage() {
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   )}
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           )}
         </div>
       </div>

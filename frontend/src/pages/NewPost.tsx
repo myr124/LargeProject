@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { apiReq } from "../utils/api";
 import Navbar from "../components/ui/Navbar";
 import { Button } from "@/components/ui/button";
@@ -92,7 +93,12 @@ export default function NewPost() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="max-w-2xl mx-auto px-4 py-10">
+      <motion.main
+        className="max-w-2xl mx-auto px-4 py-10"
+        initial={{ opacity: 0, y: 28 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.65, ease: [0.25, 0.1, 0.25, 1] }}
+      >
         <h1 className="text-2xl font-bold text-foreground mb-6">New Post</h1>
 
         <Card>
@@ -206,7 +212,7 @@ export default function NewPost() {
             </form>
           </CardContent>
         </Card>
-      </main>
+      </motion.main>
     </div>
   );
 }

@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { apiGet, apiReq } from "../utils/api";
 import { useParams, Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import Navbar from "../components/ui/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { staggerContainer, staggerItem, scaleIn } from "../utils/motion";
 
 export default function PostDetail() {
   const { id } = useParams<{ id: string }>();
@@ -108,7 +110,12 @@ export default function PostDetail() {
           Back to Feed
         </Link>
 
-        <article className="bg-card border border-border rounded-3xl overflow-hidden shadow-xl">
+        <motion.article
+          className="bg-card border border-border rounded-3xl overflow-hidden shadow-xl"
+          variants={scaleIn}
+          initial="hidden"
+          animate="show"
+        >
           <div className="relative aspect-[16/10] w-full bg-muted">
             <img src={post.image_urls?.[0]} alt={post.title} className="w-full h-full object-cover" />
           </div>
@@ -126,13 +133,18 @@ export default function PostDetail() {
               </div>
             </header>
 
-            <section className="space-y-10">
-              <div className="prose prose-stone dark:prose-invert max-w-none">
+            <motion.section
+              className="space-y-10"
+              variants={staggerContainer}
+              initial="hidden"
+              animate="show"
+            >
+              <motion.div variants={staggerItem} className="prose prose-stone dark:prose-invert max-w-none">
                 <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-orange-600 dark:text-orange-400 mb-4">The Story</h3>
                 <p className="text-xl text-foreground leading-relaxed font-serif">{post.description}</p>
-              </div>
+              </motion.div>
 
-              <div className="bg-muted rounded-2xl p-8 border border-border">
+              <motion.div variants={staggerItem} className="bg-muted rounded-2xl p-8 border border-border">
                 <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground mb-6">Ingredients</h3>
                 <div className="flex flex-wrap gap-2">
                   {(Array.isArray(post.ingredients) ? post.ingredients : [post.ingredients]).map((ing: string, i: number) => (
@@ -141,10 +153,10 @@ export default function PostDetail() {
                     </span>
                   ))}
                 </div>
-              </div>
+              </motion.div>
 
               {Array.isArray(post.instructions) && post.instructions.length > 0 && (
-                <div>
+                <motion.div variants={staggerItem}>
                   <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-orange-600 dark:text-orange-400 mb-6">Instructions</h3>
                   <ol className="flex flex-col gap-5">
                     {post.instructions.map((step: string, i: number) => (
@@ -156,10 +168,10 @@ export default function PostDetail() {
                       </li>
                     ))}
                   </ol>
-                </div>
+                </motion.div>
               )}
 
-              <div className="pt-6 border-t border-border">
+              <motion.div variants={staggerItem} className="pt-6 border-t border-border">
                 <div className="flex flex-col items-center gap-4">
                   <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">Give a Rating</h3>
                   <div className="flex items-center gap-1" onMouseLeave={() => setHover(0)}>
@@ -206,10 +218,10 @@ export default function PostDetail() {
                     </div>
                   </div>
                 </div>
-              </div>
-            </section>
+              </motion.div>
+            </motion.section>
           </div>
-        </article>
+        </motion.article>
       </main>
     </div>
   );

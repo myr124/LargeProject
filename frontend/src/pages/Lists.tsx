@@ -1,10 +1,12 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Trash2, ChevronDown, ChevronUp, ListIcon } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { apiGet, apiReq } from "../utils/api";
 import Navbar from "../components/ui/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { fadeUp, staggerContainer, staggerItem } from "../utils/motion";
 
 interface ListItem {
   _id: string;
@@ -108,7 +110,7 @@ export default function Lists() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="max-w-2xl mx-auto px-4 py-10">
+      <motion.main className="max-w-2xl mx-auto px-4 py-10" variants={fadeUp} initial="hidden" animate="show">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
             <ListIcon className="w-5 h-5" /> My Lists
@@ -139,14 +141,14 @@ export default function Lists() {
             No lists yet. Create one above to get started.
           </div>
         ) : (
-          <div className="flex flex-col gap-3">
+          <motion.div className="flex flex-col gap-3" variants={staggerContainer} initial="hidden" animate="show">
             {lists.map(list => {
               const isExpanded = expandedId === list._id;
               const posts = loadedPosts[list._id] ?? [];
               const postCount = isExpanded ? posts.length : list.posts.length;
 
               return (
-                <div key={list._id} className="border border-border rounded-xl overflow-hidden bg-card">
+                <motion.div key={list._id} variants={staggerItem} className="border border-border rounded-xl overflow-hidden bg-card">
                   {/* List header */}
                   <div className="flex items-center gap-3 px-4 py-3">
                     <button
@@ -176,8 +178,16 @@ export default function Lists() {
                   </div>
 
                   {/* Expanded posts */}
+                  <AnimatePresence>
                   {isExpanded && (
-                    <div className="border-t border-border px-4 py-3 flex flex-col gap-3">
+                    <motion.div
+                      className="border-t border-border px-4 py-3 flex flex-col gap-3"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+                      style={{ overflow: "hidden" }}
+                    >
                       {loadingPosts === list._id ? (
                         <div className="flex flex-col gap-2 animate-pulse">
                           {[1, 2].map(n => <div key={n} className="h-16 bg-muted rounded-lg" />)}
@@ -215,14 +225,15 @@ export default function Lists() {
                           </div>
                         ))
                       )}
-                    </div>
+                    </motion.div>
                   )}
-                </div>
+                  </AnimatePresence>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         )}
-      </main>
+      </motion.main>
     </div>
   );
 }

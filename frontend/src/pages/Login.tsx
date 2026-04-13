@@ -1,6 +1,7 @@
 // Login.tsx
 import { useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
+import { motion } from "framer-motion";
 import { Wheat } from "lucide-react";
 import { apiReq } from "../utils/api";
 import { Button } from "@/components/ui/button";
@@ -49,7 +50,12 @@ export default function Login() {
       </nav>
 
       <div className="flex flex-1 items-center justify-center px-4 py-16">
-        <div className="w-full max-w-sm">
+        <motion.div
+          className="w-full max-w-sm"
+          initial={{ opacity: 0, y: 32 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.65, ease: [0.25, 0.1, 0.25, 1] }}
+        >
           <div className="text-center mb-8">
             <div className="w-14 h-14 bg-orange-100 dark:bg-orange-900/40 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Wheat className="w-7 h-7 text-orange-700 dark:text-orange-400" />
@@ -136,7 +142,7 @@ export default function Login() {
               Create a free account
             </a>
           </p>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

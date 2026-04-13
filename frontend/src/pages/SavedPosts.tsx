@@ -1,11 +1,13 @@
 import { useEffect, useState, useMemo } from "react";
 import { Wheat, Star, Trash2, ListPlus } from "lucide-react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { apiGet, apiReq } from "../utils/api";
 import useFetchUser from "../components/FetchUserHook";
 import Navbar from "../components/ui/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { fadeUp, staggerContainer, staggerItem } from "../utils/motion";
 
 interface ListItem {
   _id: string;
@@ -85,7 +87,12 @@ export default function SavedPosts() {
     <div className="min-h-screen bg-background" onClick={() => setPickerPostId(null)}>
       <Navbar />
 
-      <main className="max-w-6xl mx-auto px-6 py-8">
+      <motion.main
+        className="max-w-6xl mx-auto px-6 py-8"
+        variants={fadeUp}
+        initial="hidden"
+        animate="show"
+      >
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-foreground">Saved Creations</h2>
           <Link to="/lists" className="text-sm text-orange-700 dark:text-orange-400 hover:underline">
@@ -104,9 +111,14 @@ export default function SavedPosts() {
             <p className="text-sm text-muted-foreground mt-1">Posts you save will appear here.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            variants={staggerContainer}
+            initial="hidden"
+            animate="show"
+          >
             {savedPostsData.map((post, index) => (
-              <div key={index} className="group relative">
+              <motion.div key={index} className="group relative" variants={staggerItem} whileHover={{ y: -4, transition: { duration: 0.2 } }}>
                 <Link to={`/post/${post._id}`} className="block">
                   <Card className="overflow-hidden p-0 hover:shadow-lg transition-all duration-300 flex flex-col h-full">
                     <div className="aspect-video overflow-hidden bg-muted">
@@ -192,11 +204,11 @@ export default function SavedPosts() {
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
-      </main>
+      </motion.main>
     </div>
   );
 }

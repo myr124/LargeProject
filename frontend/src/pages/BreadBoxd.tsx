@@ -2,9 +2,11 @@
 import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Flame, Users, BarChart2, TrendingUp, Sparkles, Star, Wheat } from "lucide-react";
+import { motion } from "framer-motion";
 import Navbar from "../components/ui/Navbar";
 import { apiGet } from "../utils/api";
 import { Button } from "@/components/ui/button";
+import { staggerContainer, staggerItem } from "../utils/motion";
 
 export default function BreadBoxd() {
   return (
@@ -31,7 +33,12 @@ export default function BreadBoxd() {
 
 function Hero() {
   return (
-    <div className="bg-muted border-b border-border px-6 py-14 text-center">
+    <motion.div
+      className="bg-muted border-b border-border px-6 py-14 text-center"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.7 }}
+    >
       <p className="text-xs font-medium tracking-widest text-orange-700 dark:text-orange-400 uppercase mb-3">
         Your kitchen, your story
       </p>
@@ -46,7 +53,7 @@ function Hero() {
         <Button>Start cooking</Button>
         <Button variant="outline">Browse recipes</Button>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -91,11 +98,18 @@ function PopularRecipes() {
           No recipes found. Start cooking to populate this list!
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <motion.div
+          className="grid grid-cols-2 md:grid-cols-4 gap-4"
+          variants={staggerContainer}
+          initial="hidden"
+          animate="show"
+        >
           {recipes.map((r) => (
-            <RecipeCard key={r._id} recipe={r} />
+            <motion.div key={r._id} variants={staggerItem} whileHover={{ y: -3, transition: { duration: 0.2 } }}>
+              <RecipeCard recipe={r} />
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
     </section>
   );
@@ -212,14 +226,19 @@ function ActivityFeed() {
           {userId ? "Follow some cooks to see their activity here." : "Log in to see friend activity."}
         </div>
       ) : (
-        <div className="flex flex-col gap-4">
+        <motion.div
+          className="flex flex-col gap-4"
+          variants={staggerContainer}
+          initial="hidden"
+          animate="show"
+        >
           {activity.map((a, i) => {
             const author = a.author;
             const colorClass = avatarColors[i % avatarColors.length];
             const name = author ? `${author.firstName} ${author.lastName}` : "Someone";
             const stars = a.postRating ? "★".repeat(Math.round(a.postRating)) : null;
             return (
-              <div key={a.postId} className="flex items-start gap-3">
+              <motion.div key={a.postId} variants={staggerItem} className="flex items-start gap-3">
                 <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 overflow-hidden ${colorClass}`}>
                   {author?.profilePictureUrl ? (
                     <img src={author.profilePictureUrl} alt={name} className="w-full h-full object-cover" />
@@ -243,10 +262,10 @@ function ActivityFeed() {
                   </p>
                   <p className="text-xs text-muted-foreground/70 mt-0.5">{timeAgo(a.createdAt)}</p>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       )}
     </div>
   );
