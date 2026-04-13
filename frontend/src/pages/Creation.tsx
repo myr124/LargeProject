@@ -134,7 +134,13 @@ export default function PostDetail() {
 
               <div className="bg-muted rounded-2xl p-8 border border-border">
                 <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground mb-6">Ingredients</h3>
-                <div className="text-foreground text-lg leading-loose whitespace-pre-line">{post.ingredients}</div>
+                <div className="flex flex-wrap gap-2">
+                  {(Array.isArray(post.ingredients) ? post.ingredients : [post.ingredients]).map((ing: string, i: number) => (
+                    <span key={i} className="px-3 py-1 rounded-full bg-background text-foreground text-sm font-medium border border-border">
+                      {ing.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())}
+                    </span>
+                  ))}
+                </div>
               </div>
 
               <div className="pt-6 border-t border-border">

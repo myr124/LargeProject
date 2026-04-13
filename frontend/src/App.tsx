@@ -9,6 +9,8 @@ import SavedPosts from "./pages/SavedPosts";
 import NewPost from "./pages/NewPost";
 import EditProfile from "./pages/EditProfile";
 import Community from "./pages/Community";
+import Lists from "./pages/Lists";
+import Discover from "./pages/Discover";
 
 function App() {
     return (
@@ -24,6 +26,8 @@ function App() {
                 <Route path="/new-post" element={<NewPost />} />
                 <Route path="/edit-profile" element={<EditProfile />} />
                 <Route path="/community" element={<Community />} />
+                <Route path="/lists" element={<Lists />} />
+                <Route path="/discover" element={<Discover />} />
             </Routes>
         </BrowserRouter>
     );

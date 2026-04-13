@@ -16,6 +16,14 @@ router.post('/comment', socialController.comment);
 router.get('/getFriendActivity/:userId', socialController.getFriendActivity);
 router.get('/getFollowing/:userId', socialController.getFollowing);
 router.get('/getTrendingIngredients', socialController.getTrendingIngredients);
+router.post('/createList', socialController.createList);
+router.get('/getLists/:userId', socialController.getLists);
+router.get('/getListById/:listId', socialController.getListById);
+router.post('/addToList', socialController.addToList);
+router.post('/removeFromList', socialController.removeFromList);
+router.post('/deleteList', socialController.deleteList);
+router.post('/deletePost', socialController.deletePost);
+router.post('/unsavePost', socialController.unsavePost);
 router.get('/getSuggestedPosts/:userId', socialController.getSuggestedPosts);
 
 module.exports = router;

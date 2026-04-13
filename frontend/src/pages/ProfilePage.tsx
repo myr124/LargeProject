@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
+import { Trash2 } from "lucide-react";
 import { apiGet, apiReq } from "../utils/api";
 import Navbar from "../components/ui/Navbar";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
   const [posts, setPosts] = useState<any[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [followPending, setFollowPending] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -68,6 +70,20 @@ export default function ProfilePage() {
       setUser((u: any) => u ? { ...u, followerCount: u.followerCount + (wasFollowing ? 1 : -1) } : u);
     } finally {
       setFollowPending(false);
+    }
+  };
+
+  const handleDelete = async (postId: string) => {
+    if (!confirm("Delete this post? This can't be undone.")) return;
+    setDeletingId(postId);
+    try {
+      const res = await apiReq("deletePost", { postId, userId: currentUserId });
+      if (!res.error) {
+        setPosts(prev => prev.filter(p => p._id !== postId));
+        setUser((u: any) => u ? { ...u, postCount: Math.max(0, (u.postCount ?? 1) - 1) } : u);
+      }
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -153,24 +169,38 @@ export default function ProfilePage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-8">
               {posts.map((post) => (
-                <Link to={`/post/${post._id}`} key={post._id} className="group block">
-                  <Card className="overflow-hidden p-0 h-full hover:shadow-md transition-shadow">
-                    <div className="aspect-video overflow-hidden bg-muted">
-                      <img
-                        src={post.image_urls?.[0]}
-                        alt={post.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    </div>
-                    <CardContent className="p-5">
-                      <h2 className="text-base font-bold text-foreground mb-2 leading-tight">{post.title}</h2>
-                      <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{post.description}</p>
-                      {post.rating > 0 && (
-                        <p className="text-xs text-yellow-500 mt-2">{"★".repeat(Math.round(post.rating))}</p>
-                      )}
-                    </CardContent>
-                  </Card>
-                </Link>
+                <div key={post._id} className="group relative">
+                  <Link to={`/post/${post._id}`} className="block">
+                    <Card className="overflow-hidden p-0 h-full hover:shadow-md transition-shadow">
+                      <div className="aspect-video overflow-hidden bg-muted">
+                        <img
+                          src={post.image_urls?.[0]}
+                          alt={post.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      </div>
+                      <CardContent className="p-5">
+                        <h2 className="text-base font-bold text-foreground mb-2 leading-tight">{post.title}</h2>
+                        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{post.description}</p>
+                        {post.rating > 0 && (
+                          <p className="text-xs text-yellow-500 mt-2">{"★".repeat(Math.round(post.rating))}</p>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </Link>
+                  {isOwnProfile && (
+                    <Button
+                      size="icon"
+                      variant="destructive"
+                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                      disabled={deletingId === post._id}
+                      onClick={() => handleDelete(post._id)}
+                      aria-label="Delete post"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
               ))}
             </div>
           )}

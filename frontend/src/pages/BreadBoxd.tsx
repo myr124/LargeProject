@@ -275,8 +275,9 @@ function YourStats() {
     ]).then(([userRes, postsRes]) => {
       if (!userRes.error) setUser(userRes);
       if (Array.isArray(postsRes)) {
+        const toProperCase = (s: string) => s.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
         const allTags = postsRes.flatMap((p: any) => Array.isArray(p.tags) ? p.tags : []);
-        setTags([...new Set(allTags as string[])].slice(0, 8));
+        setTags([...new Set((allTags as string[]).map(toProperCase))].slice(0, 8));
       }
     }).finally(() => setLoading(false));
   }, [userId]);
