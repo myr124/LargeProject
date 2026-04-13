@@ -1,0 +1,23 @@
+const mongoose = require('mongoose');
+
+const interactionSchema = new mongoose.Schema({
+    user_id:{
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
+    creation_id:{
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
+    type:{
+        type: String,
+        enum: ['like', 'save'],
+        required: true
+    },
+    created_at:{
+        type: Date,
+        default: Date.now
+    }
+});
+
+module.exports = mongoose.model('Interaction', interactionSchema, 'interactions');
