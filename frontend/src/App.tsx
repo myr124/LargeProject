@@ -6,6 +6,7 @@ import SignUp from "./pages/SignUp";
 import ProfilePage from "./pages/ProfilePage";
 import Creation from "./pages/Creation";
 import SavedPosts from "./pages/SavedPosts";
+import NewPost from "./pages/NewPost";
 
 function App() {
     return (
@@ -17,6 +18,7 @@ function App() {
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/post/:id" element={<Creation />} />
                 <Route path="/saved" element={<SavedPosts />} />
+                <Route path="/new-post" element={<NewPost />} />
             </Routes>
         </BrowserRouter>
     );
