@@ -143,6 +143,22 @@ export default function PostDetail() {
                 </div>
               </div>
 
+              {Array.isArray(post.instructions) && post.instructions.length > 0 && (
+                <div>
+                  <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-orange-600 dark:text-orange-400 mb-6">Instructions</h3>
+                  <ol className="flex flex-col gap-5">
+                    {post.instructions.map((step: string, i: number) => (
+                      <li key={i} className="flex gap-4">
+                        <span className="flex-shrink-0 w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 text-sm font-bold flex items-center justify-center">
+                          {i + 1}
+                        </span>
+                        <p className="text-foreground leading-relaxed pt-1">{step}</p>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+
               <div className="pt-6 border-t border-border">
                 <div className="flex flex-col items-center gap-4">
                   <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground">Give a Rating</h3>

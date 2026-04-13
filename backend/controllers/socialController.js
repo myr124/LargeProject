@@ -6,12 +6,13 @@ const List = require('../models/list');
 
 exports.postCreation = async (req, res) => {
     try{     
-        const {author_id, title, description, ingredients, tags, self_rating, image_urls, author_snippet} = req.body;
+        const {author_id, title, description, ingredients, instructions, tags, self_rating, image_urls, author_snippet} = req.body;
         const newCreation = new Creation({
             author_id,
             title,
             description,
             ingredients,
+            instructions,
             tags,
             self_rating,
             image_urls,
@@ -19,7 +20,7 @@ exports.postCreation = async (req, res) => {
         });
         await newCreation.save();
         await User.findByIdAndUpdate({_id: author_id}, { $inc: { postCount: 1 }, $addToSet: { savedPosts: newCreation._id } });
-        res.status(201).json({message: 'Creation posted successfully'});
+        res.status(201).json({message: 'Creation posted successfully', postId: newCreation._id});
     }catch(e){
         console.error(e);
         res.status(500).json({error: e.message});
