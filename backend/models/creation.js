@@ -45,6 +45,11 @@ const creationSchema = new mongoose.Schema({
         enum : [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5],
         default: 0
     },
+    instructions:{
+        type: [String],
+        required: false,
+        default: []
+    },
     comments:{
         type: [String],
         required: false,

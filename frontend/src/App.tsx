@@ -9,7 +9,12 @@ import SavedPosts from "./pages/SavedPosts";
 import NewPost from "./pages/NewPost";
 import EditProfile from "./pages/EditProfile";
 import Community from "./pages/Community";
+<<<<<<< HEAD
 import ResetPassword from "./pages/ForgotPassword";
+=======
+import Lists from "./pages/Lists";
+import Discover from "./pages/Discover";
+>>>>>>> 3fa28bd3427aff6215e4f25d3bd868a1c6ba126f
 
 function App() {
     return (
@@ -25,7 +30,12 @@ function App() {
                 <Route path="/new-post" element={<NewPost />} />
                 <Route path="/edit-profile" element={<EditProfile />} />
                 <Route path="/community" element={<Community />} />
+<<<<<<< HEAD
                 <Route path = "/resetpassword" element ={<ResetPassword/>}/>
+=======
+                <Route path="/lists" element={<Lists />} />
+                <Route path="/discover" element={<Discover />} />
+>>>>>>> 3fa28bd3427aff6215e4f25d3bd868a1c6ba126f
             </Routes>
         </BrowserRouter>
     );

@@ -2,23 +2,25 @@ const Creation = require('../models/creation');
 const Follow = require('../models/follow');
 const Interaction = require('../models/interaction');
 const User = require('../models/user');
+const List = require('../models/list');
 
 exports.postCreation = async (req, res) => {
     try{     
-        const {author_id, title, description, ingredients, tags, self_rating, image_urls, author_snippet} = req.body;
+        const {author_id, title, description, ingredients, instructions, tags, self_rating, image_urls, author_snippet} = req.body;
         const newCreation = new Creation({
             author_id,
             title,
             description,
             ingredients,
+            instructions,
             tags,
             self_rating,
             image_urls,
             author_snippet
         });
         await newCreation.save();
-        await User.findByIdAndUpdate({_id: author_id}, {$inc: {postCount: 1}});
-        res.status(201).json({message: 'Creation posted successfully'});
+        await User.findByIdAndUpdate({_id: author_id}, { $inc: { postCount: 1 }, $addToSet: { savedPosts: newCreation._id } });
+        res.status(201).json({message: 'Creation posted successfully', postId: newCreation._id});
     }catch(e){
         console.error(e);
         res.status(500).json({error: e.message});
@@ -159,7 +161,8 @@ exports.getTrendingIngredients = async (req, res) => {
             { $sort: { count: -1 } },
             { $limit: 5 },
         ]);
-        res.status(200).json(results.map(r => ({ name: r._id, count: r.count })));
+        const toProperCase = (str) => str.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+        res.status(200).json(results.map(r => ({ name: toProperCase(r._id), count: r.count })));
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
@@ -182,6 +185,103 @@ exports.getSuggestedPosts = async (req, res) => {
             .slice(0, 3);
 
         res.status(200).json(filtered);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
+exports.createList = async (req, res) => {
+    try {
+        const { userId, name } = req.body;
+        if (!name?.trim()) return res.status(400).json({ error: 'Name is required' });
+        const list = new List({ user_id: userId, name: name.trim() });
+        await list.save();
+        res.status(201).json(list);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
+exports.getLists = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const lists = await List.find({ user_id: userId }).sort({ created_at: -1 });
+        res.status(200).json(lists);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
+exports.getListById = async (req, res) => {
+    try {
+        const { listId } = req.params;
+        const list = await List.findById(listId);
+        if (!list) return res.status(404).json({ error: 'List not found' });
+        const posts = await Creation.find({ _id: { $in: list.posts } });
+        res.status(200).json({ ...list.toObject(), posts });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
+exports.addToList = async (req, res) => {
+    try {
+        const { listId, postId } = req.body;
+        const list = await List.findById(listId);
+        if (!list) return res.status(404).json({ error: 'List not found' });
+        if (list.posts.map(id => id.toString()).includes(postId)) {
+            return res.status(400).json({ error: 'Post already in list' });
+        }
+        list.posts.push(postId);
+        await list.save();
+        res.status(200).json({ message: 'Added to list' });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
+exports.removeFromList = async (req, res) => {
+    try {
+        const { listId, postId } = req.body;
+        await List.findByIdAndUpdate(listId, { $pull: { posts: postId } });
+        res.status(200).json({ message: 'Removed from list' });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
+exports.deleteList = async (req, res) => {
+    try {
+        const { listId, userId } = req.body;
+        const list = await List.findById(listId);
+        if (!list) return res.status(404).json({ error: 'List not found' });
+        if (list.user_id.toString() !== userId) return res.status(403).json({ error: 'Not authorized' });
+        await List.findByIdAndDelete(listId);
+        res.status(200).json({ message: 'List deleted' });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
+exports.deletePost = async (req, res) => {
+    try {
+        const { postId, userId } = req.body;
+        const post = await Creation.findById(postId);
+        if (!post) return res.status(404).json({ error: 'Post not found' });
+        if (post.author_id.toString() !== userId) return res.status(403).json({ error: 'Not authorized' });
+        await Creation.findByIdAndDelete(postId);
+        await User.findByIdAndUpdate(userId, { $inc: { postCount: -1 } });
+        res.status(200).json({ message: 'Post deleted successfully' });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
+exports.unsavePost = async (req, res) => {
+    try {
+        const { userId, postId } = req.body;
+        await User.findByIdAndUpdate(userId, { $pull: { savedPosts: postId } });
+        res.status(200).json({ message: 'Post removed from saved' });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }

@@ -1,8 +1,10 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { apiGet, apiReq } from "../utils/api";
 import Navbar from "../components/ui/Navbar";
 import { Button } from "@/components/ui/button";
+import { fadeUp, staggerContainer, staggerItem } from "../utils/motion";
 
 interface User {
   _id: string;
@@ -97,7 +99,12 @@ export default function Community() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="max-w-3xl mx-auto px-4 py-10">
+      <motion.main
+        className="max-w-3xl mx-auto px-4 py-10"
+        variants={fadeUp}
+        initial="hidden"
+        animate="show"
+      >
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-foreground">Community</h1>
           <span className="text-sm text-muted-foreground">{users.length - (currentUserId ? 1 : 0)} cooks</span>
@@ -128,9 +135,14 @@ export default function Community() {
             {search ? "No cooks match your search." : "No other users yet."}
           </div>
         ) : (
-          <div className="flex flex-col gap-3">
+          <motion.div
+            className="flex flex-col gap-3"
+            variants={staggerContainer}
+            initial="hidden"
+            animate="show"
+          >
             {filtered.map(user => (
-              <div key={user._id} className="flex items-center gap-4 p-4 bg-card border border-border rounded-xl">
+              <motion.div key={user._id} variants={staggerItem} className="flex items-center gap-4 p-4 bg-card border border-border rounded-xl">
                 <Link to={`/profile/${user._id}`} className="flex items-center gap-4 flex-1 min-w-0 hover:opacity-80 transition-opacity">
                   <img
                     src={user.profilePictureUrl || PLACEHOLDER}
@@ -159,11 +171,11 @@ export default function Community() {
                     {following.has(user._id) ? "Unfollow" : "Follow"}
                   </Button>
                 )}
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
-      </main>
+      </motion.main>
     </div>
   );
 }

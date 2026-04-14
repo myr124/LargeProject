@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { apiReq } from "../utils/api";
 import Navbar from "../components/ui/Navbar";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,9 @@ export default function NewPost() {
 
   const [imageInput, setImageInput] = useState("");
   const [imageUrls, setImageUrls] = useState<string[]>([]);
+
+  const [stepInput, setStepInput] = useState("");
+  const [instructions, setInstructions] = useState<string[]>([]);
 
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
@@ -69,6 +73,7 @@ export default function NewPost() {
         title: title.trim(),
         description: description.trim(),
         ingredients,
+        instructions,
         image_urls: imageUrls,
         tags,
         self_rating: selfRating || undefined,
@@ -76,7 +81,7 @@ export default function NewPost() {
       if (res.error) {
         setError(res.error);
       } else {
-        navigate("/");
+        navigate(res.postId ? `/post/${res.postId}` : "/");
       }
     } catch {
       setError("Something went wrong. Please try again.");
@@ -88,7 +93,12 @@ export default function NewPost() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="max-w-2xl mx-auto px-4 py-10">
+      <motion.main
+        className="max-w-2xl mx-auto px-4 py-10"
+        initial={{ opacity: 0, y: 28 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.65, ease: [0.25, 0.1, 0.25, 1] }}
+      >
         <h1 className="text-2xl font-bold text-foreground mb-6">New Post</h1>
 
         <Card>
@@ -128,6 +138,18 @@ export default function NewPost() {
                 items={ingredients}
                 onAdd={() => addItem(ingredientInput, ingredients, setIngredients, setIngredientInput)}
                 onRemove={(v) => removeItem(v, ingredients, setIngredients)}
+              />
+
+              {/* Instructions / Steps */}
+              <StepField
+                input={stepInput}
+                setInput={setStepInput}
+                steps={instructions}
+                onAdd={() => {
+                  const val = stepInput.trim();
+                  if (val) { setInstructions([...instructions, val]); setStepInput(""); }
+                }}
+                onRemove={(i) => setInstructions(instructions.filter((_, idx) => idx !== i))}
               />
 
               {/* Image URLs */}
@@ -190,7 +212,54 @@ export default function NewPost() {
             </form>
           </CardContent>
         </Card>
-      </main>
+      </motion.main>
+    </div>
+  );
+}
+
+// ─── Step field ───────────────────────────────────────────────────────────────
+
+interface StepFieldProps {
+  input: string;
+  setInput: (v: string) => void;
+  steps: string[];
+  onAdd: () => void;
+  onRemove: (i: number) => void;
+}
+
+function StepField({ input, setInput, steps, onAdd, onRemove }: StepFieldProps) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Label>Steps / Instructions (optional)</Label>
+      <div className="flex gap-2">
+        <Input
+          placeholder="e.g. Mix flour and water until combined"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); onAdd(); } }}
+        />
+        <Button type="button" variant="outline" onClick={onAdd}>Add</Button>
+      </div>
+      {steps.length > 0 && (
+        <ol className="flex flex-col gap-2 mt-1">
+          {steps.map((step, i) => (
+            <li key={i} className="flex items-start gap-2 text-sm">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 text-xs font-bold flex items-center justify-center mt-0.5">
+                {i + 1}
+              </span>
+              <span className="flex-1 text-foreground leading-relaxed pt-0.5">{step}</span>
+              <button
+                type="button"
+                onClick={() => onRemove(i)}
+                className="text-muted-foreground hover:text-foreground transition-colors mt-0.5"
+                aria-label="Remove step"
+              >
+                ×
+              </button>
+            </li>
+          ))}
+        </ol>
+      )}
     </div>
   );
 }
