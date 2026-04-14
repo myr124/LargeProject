@@ -89,12 +89,21 @@ exports.register = async (req, res) => {
         }).save();
 
         const url = `${getPublicApiBaseUrl()}/verify/${verificationToken}`;
-        
-        await sendVerificationEmail(email, firstName, url);
+        try {
+            await sendVerificationEmail(email, firstName, url);
+        } catch (mailError) {
+            await Token.deleteOne({ userId: savedUser._id });
+            await User.deleteOne({ _id: savedUser._id });
+            console.error('Verification email send failed:', mailError.message);
+            return res.status(503).json({
+                error: 'Unable to send verification email right now. Please try again later.'
+            });
+        }
 
         res.status(201).json({message: 'Check email to verify account!'});
 
     }catch(e){
+        console.error('Register error:', e.message);
         res.status(500).json({error: e.message});
     } 
 };
@@ -176,7 +185,6 @@ exports.getUserInfo = async (req, res) => {
         res.status(500).json({error: e.message});
     }
 };
-
 
 
 

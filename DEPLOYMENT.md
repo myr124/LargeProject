@@ -14,11 +14,12 @@ Required values:
 
 - `MONGO_URI`
 - `ACCESS_TOKEN_SECRET`
-- `SMTP_API`
+- `RESEND_API_KEY`
 
 Optional values:
 
 - `PORT` defaults to `5001`
+- `EMAIL_FROM` defaults to `Breadboxd <onboarding@resend.dev>`
 - `PUBLIC_API_BASE_URL` defaults to `http://localhost:5001/api`
 
 For frontend local development, you can also create `frontend/.env` from [frontend/.env.example](/Users/ericgeorge/workspace/code/cards/frontend/.env.example), but it is optional because the app falls back to `http://localhost:5001/api`.
@@ -88,7 +89,8 @@ Recommended `.env` values on the server:
 PORT=5001
 MONGO_URI=your_mongodb_connection_string
 ACCESS_TOKEN_SECRET=your_access_token_secret
-SMTP_API=your_smtp_api_key
+RESEND_API_KEY=your_resend_api_key
+EMAIL_FROM=Breadboxd <onboarding@resend.dev>
 PUBLIC_API_BASE_URL=http://your-domain.com:5001/api
 ```
 
@@ -143,6 +145,7 @@ The workflow will:
 - build the frontend
 - copy `frontend/dist` to `/var/www/html`
 - copy `backend/` to `/var/cards/backend`
+- write `/var/cards/.env` from GitHub Secrets
 - run `npm ci --omit=dev`
 - restart PM2 as `breadboxd-api`
 
