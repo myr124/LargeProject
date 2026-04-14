@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { apiGet, apiReq } from "../utils/api";
+import { toast } from "sonner";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import Navbar from "../components/ui/Navbar";
@@ -70,9 +71,14 @@ export default function PostDetail() {
   const handleSave = async () => {
     try {
       const res = await apiReq("savePost", { userId: currentUserId, postId: post._id });
-      if (!res.error) console.log("Saved successfully");
+      if (!res.error) {
+        toast.success("Post saved to your list!");
+      } else {
+        toast.error(res.error);
+      }
     } catch (err) {
       console.error("Save failed", err);
+      toast.error("Failed to save post.");
     }
   };
 
