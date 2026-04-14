@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 
+
+
 export default function EditProfile() {
   const navigate = useNavigate();
 
@@ -28,6 +30,7 @@ export default function EditProfile() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
     if (!userId) { navigate("/login"); return; }
@@ -36,6 +39,7 @@ export default function EditProfile() {
         setFirstName(res.firstName ?? "");
         setLastName(res.lastName ?? "");
         setUsername(res.username ?? "");
+        setEmail(res.email ?? "");
         setProfilePictureUrl(res.profilePictureUrl ?? "");
       }
       setLoading(false);
@@ -69,6 +73,21 @@ export default function EditProfile() {
       setSubmitting(false);
     }
   };
+
+
+
+  const handlePasswordReset = async()=> {
+    try{
+      const res = await apiReq('resetPassEmail',{email} )
+      if(!res.error){
+        alert("Email sent");
+      }else{
+        setError(res.error);
+      }
+    }catch(e){
+      setError("Failed to send")
+    }
+  }
 
   const exampleImage = "https://cdn.pixabay.com/photo/2023/02/18/11/00/icon-7797704_640.png";
   const avatarSrc = profilePictureUrl.trim() || exampleImage;
@@ -149,12 +168,17 @@ export default function EditProfile() {
               {error && <p className="text-sm text-destructive">{error}</p>}
 
               <div className="flex gap-3 pt-2">
+
                 <Button type="submit" disabled={submitting}>
                   {submitting ? "Saving..." : "Save Changes"}
                 </Button>
                 <Button type="button" variant="outline" onClick={() => navigate("/profile")}>
                   Cancel
                 </Button>
+                <Button type="button" variant="outline" onClick={handlePasswordReset}>
+                  Reset Password
+                </Button>
+                
               </div>
 
             </form>

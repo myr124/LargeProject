@@ -6,7 +6,7 @@ const createJWT = require('../utils/createJWTs');
 const User = require('../models/user');
 const crypto = require('crypto');
 const Token = require('../models/token');
-const { sendVerificationEmail } = require('../mailing/mailer.js');
+const { sendVerificationEmail, sendForgetPasswordEmail } = require('../mailing/mailer.js');
 const bcrypt = require('bcrypt');
 
 
@@ -169,6 +169,77 @@ exports.getUserInfo = async (req, res) => {
     }
 };
 
+exports.sendPasswordResetEmail = async(req, res) => {
+    try {
+            const {email} = req.body;
+        
+            if(!email){
+                return res.status(400).json({error: "Email is required"})
+            }
+        
+            const user = await User.findOne({email});
+            if(!user){
+                return res.status(404).json({error: "User not found"});
+            }
+        
+            const token = crypto.randomBytes(32).toString('hex');
+            const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+        
+            user.passwordResetToken = hashedToken;
+            user.passwordResetExpires = Date.now() + 3600000;
+        
+            await user.save();
+        
+            const url = `http://localhost:5173/resetpassword?token=${token}&email=${user.email}`;
+        
+            await sendForgetPasswordEmail(email, user.firstName, url);
+        
+            return res.status(200).json({message: "Email sent"});
+    } catch (e) {
+        return res.status(500).json({error: e});
+    }
+}
+
+
+exports.resetPassword = async(req,res) => {
+
+    try {
+            const {email, token, newPassword} = req.body;
+        
+            if (!email || !token || !newPassword){
+                return res.status(400).json({error: "Missing fields"});
+            }
+        
+            const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+        
+            const user = await User.findOne({
+                email: email,
+                passwordResetToken: hashedToken,
+                passwordResetExpires : {$gt: Date.now()}
+            });
+            if(!user){
+                return res.status(404).json({error: "User not found"});
+            }
+            
+            const isSamePassword = await bcrypt.compare(newPassword, user.password);
+            if(isSamePassword){
+                return res.status(400).json({error: 'New password cannot match existing password'});
+            }
+        
+            user.password = hashedPassword;
+            user.passwordResetToken = undefined;
+            user.passwordResetExpires = undefined; 
+        
+            await user.save();
+        
+            return res.status(200).json({message: "Password Reset"});
+    } catch (e) {
+        return res.status(500).json({error: e});
+    
+    }
+
+}
 
 
 

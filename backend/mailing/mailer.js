@@ -29,5 +29,18 @@ const sendVerificationEmail = async (email, firstName, url) =>{
     })
 }
 
-module.exports = {transporter, sendVerificationEmail};
+const sendForgetPasswordEmail = async (email, firstName, url) => {
+  return transporter.sendMail({
+    from: '"Breadboxd" <welcome@breadboxd.xyz>',
+    to: email,
+    subject: "Forgotten Password",
+            html: `<p>Hi ${firstName},</p>
+               <p>You requested to change your password. Please click the link below to change your password</p>
+               <a href="${url}">Change password</a>
+               <p>If you did not request to reset password, please ignore this email.</p>
+               <p>Best regards,<br/>The Breadboxd Team</p>`
+  })
+}
+
+module.exports = {transporter, sendVerificationEmail, sendForgetPasswordEmail};
 

@@ -9,6 +9,7 @@ import SavedPosts from "./pages/SavedPosts";
 import NewPost from "./pages/NewPost";
 import EditProfile from "./pages/EditProfile";
 import Community from "./pages/Community";
+import ResetPassword from "./pages/ForgotPassword";
 
 function App() {
     return (
@@ -24,6 +25,7 @@ function App() {
                 <Route path="/new-post" element={<NewPost />} />
                 <Route path="/edit-profile" element={<EditProfile />} />
                 <Route path="/community" element={<Community />} />
+                <Route path = "/resetpassword" element ={<ResetPassword/>}/>
             </Routes>
         </BrowserRouter>
     );

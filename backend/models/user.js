@@ -47,6 +47,12 @@ const userSchema = new mongoose.Schema({
         type: [mongoose.Schema.Types.ObjectId],
         ref: 'Creation',
         default: []
+    },
+    passwordResetToken:{
+        type: String
+    },
+    passwordResetExpires:{
+        type: Date
     }
 });
 
