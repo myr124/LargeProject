@@ -1,7 +1,7 @@
 
 
 const jwt = require('jsonwebtoken');
-require('dotenv').config();
+require('../config/loadEnv');
 
 exports.createToken = function(fn,ln,id){
     return _createToken(fn,ln,id);

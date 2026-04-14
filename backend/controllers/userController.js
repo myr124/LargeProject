@@ -1,5 +1,6 @@
 require('express');
 require('mongodb');
+require('../config/loadEnv');
 
 
 const createJWT = require('../utils/createJWTs');
@@ -13,6 +14,13 @@ const bcrypt = require('bcrypt');
 async function findAccount(email){
     return await User.findOne({email});
 };
+
+function getPublicApiBaseUrl() {
+    return (
+        process.env.PUBLIC_API_BASE_URL ||
+        `http://localhost:${Number(process.env.PORT) || 5001}/api`
+    );
+}
 
 
 exports.login = async (req, res) => {
@@ -80,7 +88,7 @@ exports.register = async (req, res) => {
             token: verificationToken
         }).save();
 
-        const url = `http://localhost:5001/api/verify/${verificationToken}`;
+        const url = `${getPublicApiBaseUrl()}/verify/${verificationToken}`;
         
         await sendVerificationEmail(email, firstName, url);
 
@@ -168,7 +176,6 @@ exports.getUserInfo = async (req, res) => {
         res.status(500).json({error: e.message});
     }
 };
-
 
 
 

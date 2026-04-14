@@ -1,0 +1,78 @@
+name: Deploy MERN Application
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: ./frontend
+        run: npm run build
+
+      - name: Deploy frontend to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: ${{ secrets.SERVER_PORT }}
+          source: "frontend/dist/*"
+          target: "/var/www/html"
+          strip_components: 2
+          rm: true
+
+      - name: Deploy backend files
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: ${{ secrets.SERVER_PORT }}
+          source: "backend/*"
+          target: "/var/cards/backend"
+          strip_components: 1
+          overwrite: true
+          rm: true
+
+      - name: Install dependencies and restart server
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            mkdir -p /var/cards /var/www/html
+            cat > /var/cards/.env <<EOF
+            PORT=${{ secrets.PORT }}
+            MONGO_URI=${{ secrets.MONGO_URI }}
+            ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }}
+            SMTP_API=${{ secrets.SMTP_API }}
+            PUBLIC_API_BASE_URL=${{ secrets.PUBLIC_API_BASE_URL }}
+            EOF
+            cd /var/cards/backend
+            npm ci --omit=dev
+            npm list -g pm2 || npm install -g pm2
+            pm2 reload breadboxd-api --update-env || pm2 start server.js --name "breadboxd-api"
+            pm2 save
+            sudo systemctl reload nginx

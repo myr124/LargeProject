@@ -1,8 +1,6 @@
 
 const nodemailer = require('nodemailer');
-const dotenv = require('dotenv');
-
-dotenv.config();
+require('../config/loadEnv');
 
 const transporter = nodemailer.createTransport({
   host: "live.smtp.mailtrap.io",
@@ -30,4 +28,3 @@ const sendVerificationEmail = async (email, firstName, url) =>{
 }
 
 module.exports = {transporter, sendVerificationEmail};
-
