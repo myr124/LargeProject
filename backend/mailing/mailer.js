@@ -6,6 +6,9 @@ const transporter = nodemailer.createTransport({
   host: "live.smtp.mailtrap.io",
   port: 587,
   secure: false, // use STARTTLS (upgrade connection to TLS after connecting)
+  connectionTimeout: 8000,
+  greetingTimeout: 8000,
+  socketTimeout: 10000,
   auth: {
     user: 'api',
     pass: process.env.SMTP_API,

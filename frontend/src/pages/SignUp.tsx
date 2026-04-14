@@ -28,6 +28,7 @@ interface FormErrors {
   password?: string;
   confirmPassword?: string;
   terms?: string;
+  form?: string;
 }
 
 export default function SignUp() {
@@ -67,7 +68,10 @@ export default function SignUp() {
     }
     const res = await apiReq("/register", form);
     if (res.error) {
-      setErrors({ ...validationErrors, ...res.error });
+      setErrors({
+        ...validationErrors,
+        form: typeof res.error === "string" ? res.error : "Unable to create account.",
+      });
     } else {
       alert("Account created successfully! Please check your email to verify your account.");
       window.location.href = "/login";
@@ -107,6 +111,12 @@ export default function SignUp() {
           <Card>
             <CardContent className="pt-6">
               <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                {errors.form && (
+                  <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                    {errors.form}
+                  </p>
+                )}
+
                 <Field id="firstName" label="First name" type="text" placeholder="First name"
                   value={form.firstName} onChange={update("firstName")} error={errors.firstName} autoComplete="given-name" />
 
