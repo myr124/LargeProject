@@ -8,7 +8,7 @@ const sendVerificationEmail = async (email, firstName, url) =>{
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            from: process.env.EMAIL_FROM || 'Breadboxd <onboarding@resend.dev>',
+            from: process.env.EMAIL_FROM || 'Breadboxd <welcome@breadboxd.xyz>',
             to: [email],
             subject: 'Verify your email for Breadboxd',
             html: `<p>Hi ${firstName},</p>

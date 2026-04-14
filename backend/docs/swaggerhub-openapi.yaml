@@ -1,0 +1,1072 @@
+openapi: 3.0.3
+info:
+  title: BreadBoxd API
+  version: 1.0.0
+  description: |
+    OpenAPI definition for the BreadBoxd backend routes implemented in the current Express app.
+
+    Base path in the app is `/api`, and this spec uses `http://breadbox.xyz:5001/api` as the primary server.
+
+    Notes:
+    - This spec reflects the current implementation in `routes/` and `controllers/`.
+    - Authentication is JWT-based at login, but most routes are not currently protected by Express middleware.
+servers:
+  - url: http://breadbox.xyz:5001/api
+    description: Production
+tags:
+  - name: Auth
+  - name: Users
+  - name: Posts
+  - name: Social
+  - name: Lists
+
+paths:
+  /login:
+    post:
+      tags: [Auth]
+      summary: Log in a verified user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: JWT access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Invalid credentials or email not verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /register:
+    post:
+      tags: [Auth]
+      summary: Register a new user and send verification email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Registration accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Validation or duplicate email error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Verification email unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /verify/{token}:
+    get:
+      tags: [Auth]
+      summary: Verify a user's email using verification token
+      parameters:
+        - $ref: '#/components/parameters/VerificationToken'
+      responses:
+        '200':
+          description: Email verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /deleteUser:
+    post:
+      tags: [Users]
+      summary: Delete a user account
+      description: Current implementation expects email and password in the request body.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteUserRequest'
+      responses:
+        '200':
+          description: User deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /getUserInfo/{userId}:
+    get:
+      tags: [Users]
+      summary: Get public user info by id
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /updateUser:
+    post:
+      tags: [Users]
+      summary: Update a user's profile fields
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /getAllUsers:
+    get:
+      tags: [Users]
+      summary: Get all users
+      responses:
+        '200':
+          description: Users list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /postCreation:
+    post:
+      tags: [Posts]
+      summary: Create a new post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePostRequest'
+      responses:
+        '201':
+          description: Post created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/MessageResponse'
+                  - type: object
+                    properties:
+                      postId:
+                        $ref: '#/components/schemas/ObjectId'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /follow:
+    post:
+      tags: [Social]
+      summary: Follow another user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FollowRequest'
+      responses:
+        '201':
+          description: Follow created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /unfollow:
+    post:
+      tags: [Social]
+      summary: Unfollow another user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FollowRequest'
+      responses:
+        '200':
+          description: Follow removed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /interact:
+    post:
+      tags: [Social]
+      summary: Record a user interaction with a creation
+      description: |
+        The current controller expects `interaction_type` in the request body.
+        Valid values are intended to match the Interaction model enum: `like`, `save`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InteractRequest'
+      responses:
+        '201':
+          description: Interaction recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /getPostsByUser/{userId}:
+    get:
+      tags: [Posts]
+      summary: Get all posts authored by a user
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Post list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Creation'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /getPostsById/{postId}:
+    get:
+      tags: [Posts]
+      summary: Get post by id
+      description: Current implementation returns an array, even for a single id match.
+      parameters:
+        - $ref: '#/components/parameters/PostId'
+      responses:
+        '200':
+          description: Matching post list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Creation'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /rate:
+    post:
+      tags: [Posts]
+      summary: Set a post rating
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RateRequest'
+      responses:
+        '200':
+          description: Rating updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Rating out of range
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /getAllPosts:
+    get:
+      tags: [Posts]
+      summary: Get all posts
+      responses:
+        '200':
+          description: Post list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Creation'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /savePost:
+    post:
+      tags: [Posts]
+      summary: Save a post to a user's saved posts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SavePostRequest'
+      responses:
+        '200':
+          description: Post saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Already saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /unsavePost:
+    post:
+      tags: [Posts]
+      summary: Remove a post from a user's saved posts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SavePostRequest'
+      responses:
+        '200':
+          description: Post unsaved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /comment:
+    post:
+      tags: [Posts]
+      summary: Add a comment string to a post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentRequest'
+      responses:
+        '200':
+          description: Comment added
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/MessageResponse'
+                  - type: object
+                    properties:
+                      comment:
+                        type: string
+        '404':
+          description: User or post not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /getFriendActivity/{userId}:
+    get:
+      tags: [Social]
+      summary: Get recent activity from followed users
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Activity feed
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FriendActivityItem'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /getFollowing/{userId}:
+    get:
+      tags: [Social]
+      summary: Get ids of users followed by a user
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Followed user ids
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ObjectId'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /getTrendingIngredients:
+    get:
+      tags: [Posts]
+      summary: Get top trending ingredients
+      responses:
+        '200':
+          description: Trending ingredient list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TrendingIngredient'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /getSuggestedPosts/{userId}:
+    get:
+      tags: [Posts]
+      summary: Get suggested posts for a user
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Suggested posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Creation'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /createList:
+    post:
+      tags: [Lists]
+      summary: Create a list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateListRequest'
+      responses:
+        '201':
+          description: List created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppList'
+        '400':
+          description: Missing name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /getLists/{userId}:
+    get:
+      tags: [Lists]
+      summary: Get all lists owned by a user
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Lists
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AppList'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /getListById/{listId}:
+    get:
+      tags: [Lists]
+      summary: Get a list and its populated posts
+      parameters:
+        - $ref: '#/components/parameters/ListId'
+      responses:
+        '200':
+          description: List with populated posts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppListWithPosts'
+        '404':
+          description: List not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /addToList:
+    post:
+      tags: [Lists]
+      summary: Add a post to a list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListPostRequest'
+      responses:
+        '200':
+          description: Added to list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          description: Already in list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: List not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /removeFromList:
+    post:
+      tags: [Lists]
+      summary: Remove a post from a list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListPostRequest'
+      responses:
+        '200':
+          description: Removed from list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /deleteList:
+    post:
+      tags: [Lists]
+      summary: Delete a list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteListRequest'
+      responses:
+        '200':
+          description: List deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: List not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /deletePost:
+    post:
+      tags: [Posts]
+      summary: Delete a post authored by a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeletePostRequest'
+      responses:
+        '200':
+          description: Post deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '403':
+          description: Not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Post not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  parameters:
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/ObjectId'
+    PostId:
+      name: postId
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/ObjectId'
+    ListId:
+      name: listId
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/ObjectId'
+    VerificationToken:
+      name: token
+      in: path
+      required: true
+      schema:
+        type: string
+
+  responses:
+    InternalServerError:
+      description: Server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    ObjectId:
+      type: string
+      example: 67f8fd6d2e7dbf2a6a12c001
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required: [email, password]
+
+    LoginResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: JWT with userId, firstName, and lastName claims
+      required: [accessToken]
+
+    RegisterRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required: [firstName, lastName, username, email, password]
+
+    DeleteUserRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required: [email, password]
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        userId:
+          $ref: '#/components/schemas/ObjectId'
+        firstName:
+          type: string
+        lastName:
+          type: string
+        username:
+          type: string
+        profilePictureUrl:
+          type: string
+      required: [userId]
+
+    FollowRequest:
+      type: object
+      properties:
+        follower_id:
+          $ref: '#/components/schemas/ObjectId'
+        following_id:
+          $ref: '#/components/schemas/ObjectId'
+      required: [follower_id, following_id]
+
+    InteractRequest:
+      type: object
+      properties:
+        user_id:
+          $ref: '#/components/schemas/ObjectId'
+        creation_id:
+          $ref: '#/components/schemas/ObjectId'
+        interaction_type:
+          type: string
+          enum: [like, save]
+      required: [user_id, creation_id, interaction_type]
+
+    RateRequest:
+      type: object
+      properties:
+        user_id:
+          $ref: '#/components/schemas/ObjectId'
+        post_id:
+          $ref: '#/components/schemas/ObjectId'
+        rating:
+          type: number
+          enum: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]
+      required: [user_id, post_id, rating]
+
+    SavePostRequest:
+      type: object
+      properties:
+        userId:
+          $ref: '#/components/schemas/ObjectId'
+        postId:
+          $ref: '#/components/schemas/ObjectId'
+      required: [userId, postId]
+
+    CommentRequest:
+      type: object
+      properties:
+        userId:
+          $ref: '#/components/schemas/ObjectId'
+        postId:
+          $ref: '#/components/schemas/ObjectId'
+        comment:
+          type: string
+      required: [userId, postId, comment]
+
+    CreatePostRequest:
+      type: object
+      properties:
+        author_id:
+          $ref: '#/components/schemas/ObjectId'
+        title:
+          type: string
+        description:
+          type: string
+        ingredients:
+          type: array
+          items:
+            type: string
+        instructions:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        image_urls:
+          type: array
+          items:
+            type: string
+        self_rating:
+          type: number
+        author_snippet:
+          type: object
+          additionalProperties: true
+      required: [author_id, title, description, ingredients, image_urls]
+
+    CreateListRequest:
+      type: object
+      properties:
+        userId:
+          $ref: '#/components/schemas/ObjectId'
+        name:
+          type: string
+      required: [userId, name]
+
+    ListPostRequest:
+      type: object
+      properties:
+        listId:
+          $ref: '#/components/schemas/ObjectId'
+        postId:
+          $ref: '#/components/schemas/ObjectId'
+      required: [listId, postId]
+
+    DeleteListRequest:
+      type: object
+      properties:
+        listId:
+          $ref: '#/components/schemas/ObjectId'
+        userId:
+          $ref: '#/components/schemas/ObjectId'
+      required: [listId, userId]
+
+    DeletePostRequest:
+      type: object
+      properties:
+        postId:
+          $ref: '#/components/schemas/ObjectId'
+        userId:
+          $ref: '#/components/schemas/ObjectId'
+      required: [postId, userId]
+
+    User:
+      type: object
+      properties:
+        _id:
+          $ref: '#/components/schemas/ObjectId'
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+        profilePictureUrl:
+          type: string
+          nullable: true
+        isVerified:
+          type: boolean
+        followerCount:
+          type: integer
+        followingCount:
+          type: integer
+        postCount:
+          type: integer
+        savedPosts:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectId'
+
+    Creation:
+      type: object
+      properties:
+        _id:
+          $ref: '#/components/schemas/ObjectId'
+        author_id:
+          $ref: '#/components/schemas/ObjectId'
+        title:
+          type: string
+        description:
+          type: string
+        ingredients:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        self_rating:
+          type: number
+          nullable: true
+        image_urls:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+        author_snippet:
+          type: object
+          nullable: true
+          additionalProperties: true
+        rating:
+          type: number
+        instructions:
+          type: array
+          items:
+            type: string
+        comments:
+          type: array
+          items:
+            type: string
+
+    AppList:
+      type: object
+      properties:
+        _id:
+          $ref: '#/components/schemas/ObjectId'
+        user_id:
+          $ref: '#/components/schemas/ObjectId'
+        name:
+          type: string
+        posts:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectId'
+        created_at:
+          type: string
+          format: date-time
+
+    AppListWithPosts:
+      allOf:
+        - $ref: '#/components/schemas/AppList'
+        - type: object
+          properties:
+            posts:
+              type: array
+              items:
+                $ref: '#/components/schemas/Creation'
+
+    FriendActivityAuthor:
+      type: object
+      properties:
+        _id:
+          $ref: '#/components/schemas/ObjectId'
+        firstName:
+          type: string
+        lastName:
+          type: string
+        username:
+          type: string
+        profilePictureUrl:
+          type: string
+          nullable: true
+
+    FriendActivityItem:
+      type: object
+      properties:
+        postId:
+          $ref: '#/components/schemas/ObjectId'
+        postTitle:
+          type: string
+        postRating:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+          nullable: true
+        author:
+          allOf:
+            - $ref: '#/components/schemas/FriendActivityAuthor'
+          nullable: true
+
+    TrendingIngredient:
+      type: object
+      properties:
+        name:
+          type: string
+        count:
+          type: integer
+      required: [name, count]
