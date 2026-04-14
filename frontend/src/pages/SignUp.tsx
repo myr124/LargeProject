@@ -2,6 +2,7 @@
 import { useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { Wheat, ChefHat } from "lucide-react";
+import { toast } from "sonner";
 import { apiReq } from "../utils/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -72,8 +73,8 @@ export default function SignUp() {
         form: typeof res.error === "string" ? res.error : "Unable to create account.",
       });
     } else {
-      alert("Account created successfully! Please check your email to verify your account.");
-      window.location.href = "/login";
+      toast.success("Account created! Check your email to verify your account.");
+      setTimeout(() => { window.location.href = "/login"; }, 2000);
     }
   };
 
