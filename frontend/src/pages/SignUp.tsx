@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import DarkModeToggle from "@/components/DarkModeToggle";
 
 interface FormState {
@@ -169,10 +168,7 @@ export default function SignUp() {
                       className="mt-0.5"
                     />
                     <Label htmlFor="terms" className="text-sm font-normal leading-snug cursor-pointer">
-                      I agree to the{" "}
-                      <a href="/terms" className="text-orange-700 dark:text-orange-400 hover:underline">Terms of Service</a>
-                      {" "}and{" "}
-                      <a href="/privacy" className="text-orange-700 dark:text-orange-400 hover:underline">Privacy Policy</a>
+                      I agree to the Terms of Service and Privacy Policy
                     </Label>
                   </div>
                   {errors.terms && <p className="text-xs text-destructive ml-6">{errors.terms}</p>}
@@ -180,17 +176,6 @@ export default function SignUp() {
 
                 <Button type="submit" className="w-full mt-1">Create account</Button>
               </form>
-
-              <div className="flex items-center gap-3 my-6">
-                <Separator className="flex-1" />
-                <span className="text-xs text-muted-foreground">or sign up with</span>
-                <Separator className="flex-1" />
-              </div>
-
-              <div className="flex flex-col gap-3">
-                <OAuthButton icon="G" label="Continue with Google" />
-                <OAuthButton icon="f" label="Continue with Facebook" />
-              </div>
             </CardContent>
           </Card>
 
@@ -271,15 +256,3 @@ function PasswordStrength({ password }: { password: string }) {
   );
 }
 
-// ─── OAuth Button ─────────────────────────────────────────────────────────────
-
-function OAuthButton({ icon, label }: { icon: string; label: string }) {
-  return (
-    <Button type="button" variant="outline" className="w-full">
-      <span className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-xs font-bold">
-        {icon}
-      </span>
-      {label}
-    </Button>
-  );
-}

@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import DarkModeToggle from "@/components/DarkModeToggle";
 
 export default function Login() {
@@ -122,17 +121,6 @@ export default function Login() {
 
                 <Button type="submit" className="w-full mt-1">Log in</Button>
               </form>
-
-              <div className="flex items-center gap-3 my-6">
-                <Separator className="flex-1" />
-                <span className="text-xs text-muted-foreground">or continue with</span>
-                <Separator className="flex-1" />
-              </div>
-
-              <div className="flex flex-col gap-3">
-                <OAuthButton icon="G" label="Continue with Google" />
-                <OAuthButton icon="f" label="Continue with Facebook" />
-              </div>
             </CardContent>
           </Card>
 
@@ -148,18 +136,3 @@ export default function Login() {
   );
 }
 
-interface OAuthButtonProps {
-  icon: string;
-  label: string;
-}
-
-function OAuthButton({ icon, label }: OAuthButtonProps) {
-  return (
-    <Button type="button" variant="outline" className="w-full">
-      <span className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-xs font-bold">
-        {icon}
-      </span>
-      {label}
-    </Button>
-  );
-}
