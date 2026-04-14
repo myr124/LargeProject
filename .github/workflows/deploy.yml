@@ -70,6 +70,7 @@ jobs:
             RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
             EMAIL_FROM=${{ secrets.EMAIL_FROM }}
             PUBLIC_API_BASE_URL=${{ secrets.PUBLIC_API_BASE_URL }}
+            FRONTEND_URL=${{ secrets.FRONTEND_URL }}
             EOF
             cd /var/cards/backend
             npm ci --omit=dev

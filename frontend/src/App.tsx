@@ -11,6 +11,7 @@ import EditProfile from "./pages/EditProfile";
 import Community from "./pages/Community";
 import Lists from "./pages/Lists";
 import Discover from "./pages/Discover";
+import EmailVerified from "./pages/EmailVerified";
 
 function App() {
     return (
@@ -28,6 +29,7 @@ function App() {
                 <Route path="/community" element={<Community />} />
                 <Route path="/lists" element={<Lists />} />
                 <Route path="/discover" element={<Discover />} />
+                <Route path="/verify/:token" element={<EmailVerified />} />
             </Routes>
         </BrowserRouter>
     );

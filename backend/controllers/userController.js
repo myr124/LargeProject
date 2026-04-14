@@ -22,6 +22,10 @@ function getPublicApiBaseUrl() {
     );
 }
 
+function getFrontendBaseUrl() {
+    return process.env.FRONTEND_URL || 'http://localhost:5173';
+}
+
 
 exports.login = async (req, res) => {
     try{
@@ -88,7 +92,7 @@ exports.register = async (req, res) => {
             token: verificationToken
         }).save();
 
-        const url = `${getPublicApiBaseUrl()}/verify/${verificationToken}`;
+        const url = `${getFrontendBaseUrl()}/verify/${verificationToken}`;
         try {
             await sendVerificationEmail(email, firstName, url);
         } catch (mailError) {
