@@ -1,0 +1,37 @@
+flowchart LR
+    classDef entity fill:#f8f6f1,stroke:#2b241f,stroke-width:2px,color:#1e1916,rx:14,ry:14;
+    classDef service fill:#efe7da,stroke:#7b5e3b,stroke-width:2px,color:#2d2216,rx:14,ry:14;
+    classDef screen fill:#f4eee4,stroke:#9a7650,stroke-width:2px,color:#2a2119,rx:14,ry:14;
+    classDef ext fill:#f2f0ea,stroke:#5c574f,stroke-width:2px,color:#201c18,rx:14,ry:14;
+
+    U["<b>User</b><br/>launches app<br/>enters credentials"]:::entity
+    APP["<b>MyApp</b><br/>startup controller"]:::entity
+    SS["<b>SessionService</b><br/>local token/theme cache"]:::service
+    LS["<b>LoginScreen</b><br/>login form"]:::screen
+    API["<b>ApiService</b><br/>auth + data requests"]:::service
+    BE["<b>Backend API</b><br/>/login<br/>/getAllUsers"]:::ext
+    SH["<b>AppShell</b><br/>authenticated shell"]:::screen
+    HM["<b>HomeScreen</b><br/>default tab"]:::screen
+
+    U -->|"launch app"| APP
+    APP -->|"isLoggedIn()"| SS
+    SS -->|"token?"| APP
+    APP -->|"loadThemeMode()"| SS
+    SS -->|"theme mode"| APP
+
+    APP -->|"if not logged in"| LS
+    U -->|"enter email + password"| LS
+    LS -->|"login(email,password)"| API
+    API -->|"POST /login"| BE
+    BE -->|"accessToken"| API
+    API -->|"saveToken + saveLoginEmail"| SS
+    API -->|"GET /getAllUsers"| BE
+    BE -->|"user list"| API
+    API -->|"saveResolvedUserId"| SS
+    API -->|"success"| LS
+    LS -->|"onLoginSuccess()"| APP
+
+    APP -->|"show logged-in shell"| SH
+    SH -->|"currentUserId()"| SS
+    SS -->|"user id"| SH
+    SH -->|"default tab"| HM

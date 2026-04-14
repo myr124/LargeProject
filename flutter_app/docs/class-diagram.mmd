@@ -1,0 +1,151 @@
+classDiagram
+    class MyApp {
+      -bool _loading
+      -bool _isLoggedIn
+      -ThemeMode _themeMode
+      +build(BuildContext)
+      -_bootstrap()
+      -_handleLogin()
+      -_handleLogout()
+      -_toggleTheme()
+    }
+
+    class LoginScreen {
+      +Future<void> Function() onLoginSuccess
+      +ThemeMode themeMode
+      +Future<void> Function() onToggleTheme
+    }
+
+    class AppShell {
+      +Future<void> Function() onLogout
+      +ThemeMode themeMode
+      +Future<void> Function() onToggleTheme
+    }
+
+    class SessionService {
+      +saveToken(String)
+      +saveLoginEmail(String)
+      +getLoginEmail()
+      +saveResolvedUserId(String)
+      +getResolvedUserId()
+      +getToken()
+      +logout()
+      +isLoggedIn()
+      +currentUserId()
+      +tokenIdentity()
+      +saveThemeMode(ThemeMode)
+      +loadThemeMode()
+    }
+
+    class ApiService {
+      +baseUrl
+      +login(email, password)
+      +register(firstName, lastName, username, email, password)
+      +getAllPosts()
+      +getPostById(postId)
+      +getPostsByUser(userId)
+      +getUserInfo(userId)
+      +getAllUsers()
+      +resolveCurrentUserId(forceRefresh)
+      +getFollowing(userId)
+      +getFriendActivity(userId)
+      +getTrendingIngredients()
+      +getSuggestedPosts(userId)
+      +follow(followerId, followingId)
+    }
+
+    class HomeScreen
+    class DiscoverScreen
+    class NewPostScreen
+    class SavedPostsScreen
+    class ProfileScreen
+    class CommunityScreen
+    class ListsScreen
+    class PostDetailScreen
+
+    class Post {
+      +String id
+      +String authorId
+      +String title
+      +String description
+      +List~String~ ingredients
+      +List~String~ instructions
+      +List~String~ tags
+      +List~String~ imageUrls
+      +List~String~ comments
+      +Map~String,dynamic~ authorSnippet
+      +double rating
+      +double selfRating
+      +DateTime createdAt
+      +copyWith()
+      +fromJson(Map~String,dynamic~)
+    }
+
+    class AppUser {
+      +String id
+      +String firstName
+      +String lastName
+      +String email
+      +String username
+      +String legacyId
+      +String profilePictureUrl
+      +int followerCount
+      +int followingCount
+      +int postCount
+      +List~String~ savedPosts
+      +String fullName
+      +String initials
+      +copyWith()
+      +fromJson(Map~String,dynamic~)
+    }
+
+    class AppList {
+      +String id
+      +String userId
+      +String name
+      +List~String~ postIds
+      +List~Post~ posts
+      +DateTime createdAt
+      +copyWith()
+      +fromJson(Map~String,dynamic~)
+    }
+
+    class ActivityItem {
+      +String postId
+      +String postTitle
+      +double postRating
+      +DateTime createdAt
+      +AppUser author
+      +fromJson(Map~String,dynamic~)
+    }
+
+    class TrendingIngredient {
+      +String name
+      +int count
+      +fromJson(Map~String,dynamic~)
+    }
+
+    MyApp --> SessionService : bootstrap/auth/theme
+    MyApp --> LoginScreen : shows when logged out
+    MyApp --> AppShell : shows when logged in
+
+    LoginScreen --> ApiService : login()
+    AppShell --> SessionService : currentUserId()
+    AppShell --> HomeScreen
+    AppShell --> DiscoverScreen
+    AppShell --> NewPostScreen
+    AppShell --> SavedPostsScreen
+    AppShell --> ProfileScreen
+    AppShell --> CommunityScreen
+    AppShell --> ListsScreen
+    AppShell --> PostDetailScreen
+
+    ApiService --> SessionService : token + user identity cache
+    ApiService --> Post : maps API responses
+    ApiService --> AppUser : maps API responses
+    ApiService --> AppList : maps API responses
+    ApiService --> ActivityItem : maps API responses
+    ApiService --> TrendingIngredient : maps API responses
+
+    AppList --> Post : contains
+    ActivityItem --> AppUser : author

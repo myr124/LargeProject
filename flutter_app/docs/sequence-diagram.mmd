@@ -1,0 +1,39 @@
+sequenceDiagram
+    actor User
+    participant MyApp
+    participant SessionService
+    participant LoginScreen
+    participant ApiService
+    participant Backend as Backend API
+    participant AppShell
+    participant HomeScreen
+
+    User->>MyApp: Launch app
+    MyApp->>SessionService: isLoggedIn()
+    SessionService-->>MyApp: token present?
+    MyApp->>SessionService: loadThemeMode()
+    SessionService-->>MyApp: ThemeMode
+
+    alt Logged in
+      MyApp->>AppShell: build logged-in shell
+      AppShell->>SessionService: currentUserId()
+      SessionService-->>AppShell: current user id
+      AppShell->>HomeScreen: show default tab
+    else Not logged in
+      MyApp->>LoginScreen: build login screen
+      User->>LoginScreen: Enter email/password
+      LoginScreen->>ApiService: login(email, password)
+      ApiService->>Backend: POST /login
+      Backend-->>ApiService: accessToken
+      ApiService->>SessionService: saveToken(token)
+      ApiService->>SessionService: saveLoginEmail(email)
+      ApiService->>Backend: GET /getAllUsers
+      Backend-->>ApiService: user list
+      ApiService->>SessionService: saveResolvedUserId(userId)
+      ApiService-->>LoginScreen: { success: true }
+      LoginScreen-->>MyApp: onLoginSuccess()
+      MyApp->>AppShell: rebuild logged-in shell
+      AppShell->>SessionService: currentUserId()
+      SessionService-->>AppShell: current user id
+      AppShell->>HomeScreen: show default tab
+    end

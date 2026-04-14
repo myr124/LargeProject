@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Presentation</title>
+  <style>
+    :root {
+      --bg: #f3eedd;
+      --panel: #fffaf1;
+      --text: #4d4034;
+      --muted: #7a6a58;
+      --accent: #a6754f;
+      --border: #d1bea5;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      background: linear-gradient(180deg, #efe7d4 0%, #e7dbc3 100%);
+      color: var(--text);
+    }
+
+    .deck {
+      min-height: 100vh;
+      scroll-snap-type: y mandatory;
+      overflow-y: auto;
+    }
+
+    .slide {
+      min-height: 100vh;
+      scroll-snap-align: start;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 48px;
+    }
+
+    .card {
+      width: min(980px, 100%);
+      min-height: 70vh;
+      background: rgba(255, 250, 241, 0.92);
+      border: 2px solid var(--border);
+      border-radius: 28px;
+      padding: 48px;
+      box-shadow: 0 18px 60px rgba(89, 67, 43, 0.12);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    h1, h2 {
+      margin: 0 0 18px;
+      color: #5b4632;
+    }
+
+    h1 {
+      font-size: clamp(2.3rem, 6vw, 4rem);
+      line-height: 1.05;
+    }
+
+    h2 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      line-height: 1.1;
+    }
+
+    p {
+      margin: 0 0 14px;
+      font-size: 1.2rem;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    ul {
+      margin: 10px 0 0;
+      padding-left: 24px;
+      font-size: 1.2rem;
+      line-height: 1.6;
+    }
+
+    li {
+      margin: 8px 0;
+    }
+
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+    }
+
+    .tag {
+      display: inline-block;
+      margin: 8px 10px 0 0;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: #f0e1c7;
+      border: 1px solid var(--border);
+      color: #6a533d;
+      font-size: 1rem;
+    }
+
+    .note {
+      margin-top: 18px;
+      font-size: 1rem;
+      color: #8a7762;
+    }
+
+    @media (max-width: 800px) {
+      .slide {
+        padding: 20px;
+      }
+
+      .card {
+        padding: 28px;
+        min-height: auto;
+      }
+
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="deck">
+    <section class="slide">
+      <div class="card">
+        <div class="eyebrow">Title</div>
+        <h1>Project Presentation</h1>
+        <p>Replace with your project name, team name, class, and date.</p>
+        <p><strong>One-line summary:</strong> A mobile app and backend system for sharing, saving, and discovering recipe posts.</p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="card">
+        <div class="eyebrow">Team Members</div>
+        <h2>Who Worked on What</h2>
+        <ul>
+          <li><strong>Member 1</strong> — UI design, frontend pages, app polish</li>
+          <li><strong>Member 2</strong> — backend routes, API logic, authentication</li>
+          <li><strong>Member 3</strong> — database design, models, testing</li>
+          <li><strong>Member 4</strong> — integration, debugging, documentation</li>
+        </ul>
+        <p class="note">Replace names and roles with your actual team.</p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="card">
+        <div class="eyebrow">Technology Used</div>
+        <h2>Tools, Frameworks, and Platforms</h2>
+        <div>
+          <span class="tag">Flutter</span>
+          <span class="tag">Node.js</span>
+          <span class="tag">Express</span>
+          <span class="tag">MongoDB</span>
+          <span class="tag">JWT Auth</span>
+          <span class="tag">GitHub</span>
+          <span class="tag">Discord</span>
+          <span class="tag">REST API</span>
+        </div>
+        <p class="note">You can add Postman, Figma, VS Code, or any other tools your team used.</p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="card">
+        <div class="eyebrow">Reflection</div>
+        <h2>Things That Went Well / Things That Did Not</h2>
+        <div class="two-col">
+          <div>
+            <p><strong>Went Well</strong></p>
+            <ul>
+              <li>Good communication and task division</li>
+              <li>Core backend and app features came together</li>
+              <li>GitHub helped with version control and collaboration</li>
+              <li>We were able to iterate and improve the UI</li>
+            </ul>
+          </div>
+          <div>
+            <p><strong>Did Not Go Well</strong></p>
+            <ul>
+              <li>Cross-platform UI bugs took longer than expected</li>
+              <li>Integration issues between frontend and backend</li>
+              <li>Time pressure near the end of the project</li>
+              <li>Some features needed simplification or rework</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="card">
+        <div class="eyebrow">Project Planning</div>
+        <h2>Gantt Chart</h2>
+        <ul>
+          <li>Week 1: planning and requirements</li>
+          <li>Week 2: UI design and database design</li>
+          <li>Week 3: backend implementation</li>
+          <li>Week 4: frontend implementation</li>
+          <li>Week 5: testing, integration, and polish</li>
+        </ul>
+        <p class="note">Insert your actual Gantt chart screenshot on this slide if you have one.</p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="card">
+        <div class="eyebrow">System Design</div>
+        <h2>ERD</h2>
+        <ul>
+          <li><strong>User</strong> creates posts, follows users, saves posts, owns lists</li>
+          <li><strong>Post</strong> contains title, description, images, ingredients, comments, rating</li>
+          <li><strong>List</strong> belongs to a user and stores saved posts</li>
+          <li><strong>Follow</strong> connects one user to another</li>
+        </ul>
+        <p class="note">Replace with your actual ERD image or screenshot if available.</p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="card">
+        <div class="eyebrow">Requirements</div>
+        <h2>Use Case Diagram</h2>
+        <ul>
+          <li>Register and log in</li>
+          <li>Create and view recipe posts</li>
+          <li>Follow other users</li>
+          <li>Save posts and organize them into lists</li>
+          <li>Browse community content</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="card">
+        <div class="eyebrow">Architecture</div>
+        <h2>Class Diagram</h2>
+        <ul>
+          <li><strong>User</strong>, <strong>Post</strong>, <strong>List</strong>, <strong>Follow</strong></li>
+          <li><strong>ApiService</strong> handles requests between app and backend</li>
+          <li><strong>SessionService</strong> manages auth token and user session</li>
+          <li>UI screens consume service and model layers</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="card">
+        <div class="eyebrow">Flow</div>
+        <h2>Sequence / Activity Diagram</h2>
+        <ul>
+          <li>User opens app</li>
+          <li>User logs in</li>
+          <li>App sends credentials to backend</li>
+          <li>Backend validates and returns token</li>
+          <li>App loads user data, posts, and saved content</li>
+        </ul>
+        <p class="note">Good place to insert a sequence diagram for login or post creation.</p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="card">
+        <div class="eyebrow">API Demonstration</div>
+        <h2>Backend Endpoints</h2>
+        <ul>
+          <li><code>POST /api/login</code> — authenticate user</li>
+          <li><code>GET /api/getAllPosts</code> — fetch all recipe posts</li>
+          <li><code>POST /api/postCreation</code> — create a new recipe post</li>
+          <li><code>GET /api/getLists/:userId</code> — fetch user lists</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="card">
+        <div class="eyebrow">App Demonstration</div>
+        <h2>Live App Walkthrough</h2>
+        <ul>
+          <li>Log in</li>
+          <li>Open the home feed</li>
+          <li>Browse community users</li>
+          <li>Create or view a post</li>
+          <li>Save a post to a list</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="card">
+        <div class="eyebrow">Questions</div>
+        <h1>Thank You</h1>
+        <p>Time for questions.</p>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

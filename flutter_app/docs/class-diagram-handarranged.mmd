@@ -1,0 +1,50 @@
+flowchart LR
+    classDef entity fill:#f8f6f1,stroke:#2b241f,stroke-width:2px,color:#1e1916,rx:14,ry:14;
+    classDef service fill:#efe7da,stroke:#7b5e3b,stroke-width:2px,color:#2d2216,rx:14,ry:14;
+    classDef screen fill:#f4eee4,stroke:#9a7650,stroke-width:2px,color:#2a2119,rx:14,ry:14;
+    classDef model fill:#f2f0ea,stroke:#5c574f,stroke-width:2px,color:#201c18,rx:14,ry:14;
+
+    A["<b>MyApp</b><br/>_loading<br/>_isLoggedIn<br/>_themeMode<br/>bootstrap auth + theme<br/>routes to LoginScreen/AppShell"]:::entity
+    SS["<b>SessionService</b><br/>saveToken<br/>getToken<br/>logout<br/>currentUserId<br/>tokenIdentity<br/>saveThemeMode<br/>loadThemeMode"]:::service
+    API["<b>ApiService</b><br/>login/register<br/>posts/users/lists fetches<br/>follow/rate/save/comment<br/>createPost/updateUser/deletePost"]:::service
+
+    LS["<b>LoginScreen</b><br/>form validation<br/>calls ApiService.login<br/>onLoginSuccess"]:::screen
+    AS["<b>AppShell</b><br/>bottom navigation<br/>loads current user id<br/>opens posts/profiles"]:::screen
+
+    HS["<b>HomeScreen</b><br/>feed + activity + stats"]:::screen
+    DS["<b>DiscoverScreen</b><br/>search posts"]:::screen
+    NP["<b>NewPostScreen</b><br/>create post"]:::screen
+    SV["<b>SavedPostsScreen</b><br/>saved posts + add to list"]:::screen
+    PR["<b>ProfileScreen</b><br/>profile + user posts"]:::screen
+    CM["<b>CommunityScreen</b><br/>users + follow state"]:::screen
+    LI["<b>ListsScreen</b><br/>create/delete/expand lists"]:::screen
+    PD["<b>PostDetailScreen</b><br/>rate/save/comment"]:::screen
+
+    P["<b>Post</b><br/>id<br/>authorId<br/>title<br/>description<br/>ingredients[]<br/>instructions[]<br/>tags[]<br/>imageUrls[]<br/>comments[]<br/>rating<br/>selfRating"]:::model
+    U["<b>AppUser</b><br/>id<br/>firstName<br/>lastName<br/>email<br/>username<br/>profilePictureUrl<br/>followerCount<br/>followingCount<br/>postCount<br/>savedPosts[]"]:::model
+    L["<b>AppList</b><br/>id<br/>userId<br/>name<br/>postIds[]<br/>posts[]"]:::model
+    AC["<b>ActivityItem</b><br/>postId<br/>postTitle<br/>postRating<br/>createdAt<br/>author"]:::model
+    TI["<b>TrendingIngredient</b><br/>name<br/>count"]:::model
+
+    A -->|"bootstrap/auth/theme"| SS
+    A -->|"logged out"| LS
+    A -->|"logged in"| AS
+
+    LS -->|"login()"| API
+    API -->|"token + theme + user cache"| SS
+
+    AS -->|"load current user"| SS
+    AS --> HS
+    AS --> DS
+    AS --> NP
+    AS --> SV
+    AS --> PR
+    AS --> CM
+    AS --> LI
+    AS --> PD
+
+    API --> P
+    API --> U
+    API --> L
+    API --> AC
+    API --> TI
