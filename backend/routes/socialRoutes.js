@@ -22,6 +22,7 @@ router.get('/getListById/:listId', socialController.getListById);
 router.post('/addToList', socialController.addToList);
 router.post('/removeFromList', socialController.removeFromList);
 router.post('/deleteList', socialController.deleteList);
+router.post('/editPost', socialController.editPost);
 router.post('/deletePost', socialController.deletePost);
 router.post('/unsavePost', socialController.unsavePost);
 router.get('/getSuggestedPosts/:userId', socialController.getSuggestedPosts);

@@ -15,6 +15,7 @@ import Discover from "./pages/Discover";
 import EmailVerified from "./pages/EmailVerified";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import EditPost from "./pages/EditPost";
 
 function App() {
     return (
@@ -37,6 +38,7 @@ function App() {
                 <Route path="/verify/:token" element={<EmailVerified />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password/:token" element={<ResetPassword />} />
+                <Route path="/edit-post/:id" element={<EditPost />} />
             </Routes>
         </BrowserRouter>
         </>

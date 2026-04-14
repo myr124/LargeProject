@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { apiGet, apiReq } from "../utils/api";
 import { toast } from "sonner";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Navbar from "../components/ui/Navbar";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { staggerContainer, staggerItem, scaleIn } from "../utils/motion";
 
 export default function PostDetail() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [post, setPosts] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [hover, setHover] = useState(0);
@@ -201,6 +202,9 @@ export default function PostDetail() {
                   </div>
                   <div className="flex gap-4 mt-2">
                     <Button onClick={handleSave}>Save to List</Button>
+                    {currentUserId && post.author_id === currentUserId && (
+                      <Button variant="outline" onClick={() => navigate(`/edit-post/${id}`)}>Edit Recipe</Button>
+                    )}
                   </div>
 
                   <div className="w-full pt-8 border-t border-border">

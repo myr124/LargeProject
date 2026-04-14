@@ -263,6 +263,29 @@ exports.deleteList = async (req, res) => {
     }
 };
 
+exports.editPost = async (req, res) => {
+    try {
+        const { postId, userId, title, description, ingredients, instructions, tags, self_rating, image_urls } = req.body;
+        const post = await Creation.findById(postId);
+        if (!post) return res.status(404).json({ error: 'Post not found' });
+        if (post.author_id.toString() !== userId) return res.status(403).json({ error: 'Not authorized' });
+
+        const updates = {};
+        if (title !== undefined) updates.title = title;
+        if (description !== undefined) updates.description = description;
+        if (ingredients !== undefined) updates.ingredients = ingredients;
+        if (instructions !== undefined) updates.instructions = instructions;
+        if (tags !== undefined) updates.tags = tags;
+        if (self_rating !== undefined) updates.self_rating = self_rating;
+        if (image_urls !== undefined) updates.image_urls = image_urls;
+
+        const updated = await Creation.findByIdAndUpdate(postId, { $set: updates }, { new: true });
+        res.status(200).json({ message: 'Post updated successfully', post: updated });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
 exports.deletePost = async (req, res) => {
     try {
         const { postId, userId } = req.body;
