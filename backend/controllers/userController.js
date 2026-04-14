@@ -7,7 +7,8 @@ const createJWT = require('../utils/createJWTs');
 const User = require('../models/user');
 const crypto = require('crypto');
 const Token = require('../models/token');
-const { sendVerificationEmail } = require('../mailing/mailer.js');
+const PasswordResetToken = require('../models/passwordResetToken');
+const { sendVerificationEmail, sendPasswordResetEmail } = require('../mailing/mailer.js');
 const bcrypt = require('bcrypt');
 
 
@@ -170,6 +171,56 @@ exports.getAllUsers = async (req, res) => {
     try {
         const users = await User.find({}).select('-password');
         res.status(200).json(users);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+};
+
+exports.forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await findAccount(email);
+
+        // Always return success to avoid leaking whether an email is registered
+        if (!user) {
+            return res.status(200).json({ message: 'If that email is registered you will receive a reset link.' });
+        }
+
+        // Remove any existing reset tokens for this user
+        await PasswordResetToken.deleteMany({ userId: user._id });
+
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        await new PasswordResetToken({ userId: user._id, token: resetToken }).save();
+
+        const url = `${getFrontendBaseUrl()}/reset-password/${resetToken}`;
+        try {
+            await sendPasswordResetEmail(email, user.firstName, url);
+        } catch (mailError) {
+            await PasswordResetToken.deleteOne({ userId: user._id });
+            console.error('Password reset email failed:', mailError.message);
+            return res.status(503).json({ error: 'Unable to send reset email right now. Please try again later.' });
+        }
+
+        res.status(200).json({ message: 'If that email is registered you will receive a reset link.' });
+    } catch (e) {
+        console.error('Forgot password error:', e.message);
+        res.status(500).json({ error: e.message });
+    }
+};
+
+exports.resetPassword = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const { password } = req.body;
+
+        const tokenDoc = await PasswordResetToken.findOne({ token });
+        if (!tokenDoc) return res.status(400).json({ error: 'Invalid or expired reset link.' });
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await User.findByIdAndUpdate(tokenDoc.userId, { password: hashedPassword });
+        await PasswordResetToken.deleteOne({ _id: tokenDoc._id });
+
+        res.status(200).json({ message: 'Password reset successfully.' });
     } catch (e) {
         res.status(500).json({ error: e.message });
     }
