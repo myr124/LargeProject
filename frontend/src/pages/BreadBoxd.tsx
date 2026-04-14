@@ -1,6 +1,6 @@
 // BreadBoxd.tsx
 import { useEffect, useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Flame, Users, BarChart2, TrendingUp, Sparkles, Star, Wheat } from "lucide-react";
 import { motion } from "framer-motion";
 import Navbar from "../components/ui/Navbar";
@@ -32,26 +32,71 @@ export default function BreadBoxd() {
 // ─── Hero ───────────────────────────────────────────────────────────────────
 
 function Hero() {
+  const navigate = useNavigate();
+  const isLoggedIn = !!localStorage.getItem("token");
+  const slides = [
+    "https://images.pexels.com/photos/5802/bread-food-cooking.jpg?auto=compress&cs=tinysrgb&w=1600",
+    "https://images.pexels.com/photos/1438672/pexels-photo-1438672.jpeg?auto=compress&cs=tinysrgb&w=1600",
+    "https://images.pexels.com/photos/14300096/pexels-photo-14300096.jpeg?auto=compress&cs=tinysrgb&w=1600",
+    "https://images.pexels.com/photos/2619967/pexels-photo-2619967.jpeg?auto=compress&cs=tinysrgb&w=1600",
+    "https://images.pexels.com/photos/16381140/pexels-photo-16381140.jpeg?auto=compress&cs=tinysrgb&w=1600",
+    "https://images.pexels.com/photos/1099680/pexels-photo-1099680.jpeg?auto=compress&cs=tinysrgb&w=1600",
+  ];
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  const handleBrowseRecipes = () => {
+    navigate(isLoggedIn ? "/discover" : "/login");
+  };
+
+  const handleStartCooking = () => {
+    navigate(isLoggedIn ? "/new-post" : "/login");
+  };
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setActiveSlide((current) => (current + 1) % slides.length);
+    }, 4500);
+
+    return () => window.clearInterval(interval);
+  }, [slides.length]);
+
   return (
     <motion.div
-      className="bg-muted border-b border-border px-6 py-14 text-center"
+      className="relative overflow-hidden border-b border-border px-6 py-14 text-center"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.7 }}
     >
-      <p className="text-xs font-medium tracking-widest text-orange-700 dark:text-orange-400 uppercase mb-3">
+      <div className="absolute inset-0">
+        {slides.map((slide, index) => (
+          <div
+            key={slide}
+            className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
+              index === activeSlide ? "opacity-100" : "opacity-0"
+            }`}
+            style={{ backgroundImage: `url(${slide})` }}
+          />
+        ))}
+      </div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.08)_0%,rgba(0,0,0,0.28)_48%,rgba(0,0,0,0.7)_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,12,8,0.74),rgba(18,12,8,0.22)_26%,rgba(18,12,8,0.2)_70%,rgba(18,12,8,0.8))]" />
+      <div className="absolute inset-0 backdrop-blur-[6px]" />
+
+      <div className="relative z-10">
+      <p className="text-xs font-medium tracking-widest text-orange-200 uppercase mb-3">
         Your kitchen, your story
       </p>
-      <h1 className="text-3xl font-medium text-foreground leading-snug mb-3">
+      <h1 className="text-3xl font-medium text-white leading-snug mb-3">
         Track, review & discover<br />recipes you love
       </h1>
-      <p className="text-sm text-muted-foreground max-w-md mx-auto mb-6 leading-relaxed">
+      <p className="text-sm text-white/82 max-w-md mx-auto mb-6 leading-relaxed">
         Log every dish you've cooked, rate your favorites, and find your next
         culinary adventure — like Letterboxd, but for food.
       </p>
       <div className="flex gap-3 justify-center">
-        <Button>Start cooking</Button>
-        <Button variant="outline">Browse recipes</Button>
+        <Button onClick={handleStartCooking}>Start cooking</Button>
+        <Button variant="outline" className="border-white/45 bg-white/10 text-white hover:bg-white/18 hover:text-white" onClick={handleBrowseRecipes}>Browse recipes</Button>
+      </div>
       </div>
     </motion.div>
   );
