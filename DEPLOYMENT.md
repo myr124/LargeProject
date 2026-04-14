@@ -19,7 +19,7 @@ Required values:
 Optional values:
 
 - `PORT` defaults to `5001`
-- `EMAIL_FROM` defaults to `Breadboxd <onboarding@resend.dev>`
+- `EMAIL_FROM` defaults to `Breadboxd <welcome@breadboxd.xyz>`
 - `PUBLIC_API_BASE_URL` defaults to `http://localhost:5001/api`
 
 For frontend local development, you can also create `frontend/.env` from [frontend/.env.example](/Users/ericgeorge/workspace/code/cards/frontend/.env.example), but it is optional because the app falls back to `http://localhost:5001/api`.
@@ -90,7 +90,7 @@ PORT=5001
 MONGO_URI=your_mongodb_connection_string
 ACCESS_TOKEN_SECRET=your_access_token_secret
 RESEND_API_KEY=your_resend_api_key
-EMAIL_FROM=Breadboxd <onboarding@resend.dev>
+EMAIL_FROM=Breadboxd <welcome@breadboxd.xyz>
 PUBLIC_API_BASE_URL=http://your-domain.com:5001/api
 ```
 
