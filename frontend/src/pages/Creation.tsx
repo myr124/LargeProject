@@ -87,8 +87,8 @@ export default function PostDetail() {
         comment: commentText,
       });
       if (!res.error) {
+        setPosts({ ...post, comments: [...(post.comments ?? []), commentText] });
         setCommentText("");
-        alert("Comment posted!");
       }
     } catch (err) {
       console.error("Network error during comment", err);
@@ -199,13 +199,27 @@ export default function PostDetail() {
 
                   <div className="w-full pt-8 border-t border-border">
                     <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground mb-4">
-                      Leave a Comment
+                      Comments {post.comments?.length > 0 && `(${post.comments.length})`}
                     </h3>
+
+                    {post.comments?.length > 0 ? (
+                      <ul className="flex flex-col gap-3 mb-6">
+                        {post.comments.map((c: string, i: number) => (
+                          <li key={i} className="bg-muted rounded-xl px-4 py-3 text-sm text-foreground leading-relaxed">
+                            {c}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-muted-foreground mb-6">No comments yet. Be the first!</p>
+                    )}
+
                     <div className="flex gap-3">
                       <Input
                         type="text"
                         value={commentText}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCommentText(e.target.value)}
+                        onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === "Enter" && handleComment()}
                         placeholder="What did you think of this recipe?"
                         className="flex-1"
                       />
